@@ -20,7 +20,7 @@ Funcionalidade: Sistema de Login
     E devo ver o menu de navegação
 
     Exemplos:
-      | email          | senha    |
+      | email           | senha    |
       | discente@unb.br | senha123 |
       | docente@unb.br  | senha123 |
 
@@ -35,55 +35,40 @@ Funcionalidade: Sistema de Login
 
   @cenario_feliz
   Cenário: Login bem-sucedido com matrícula
-    Dado que existe um usuário com matrícula "232007830" e senha "senha123"
-    Quando preencho "Matrícula" com "232007830"
+    Dado que existe um usuário com matrícula "23200000" e senha "senha123"
+    Quando preencho "Matrícula" com "23200000"
     E preencho "Senha" com "senha123"
     E clico em "Entrar"
     Então devo ser redirecionado para a página inicial
 
   @cenario_triste
-  Cenário: Login com senha incorreta
-    Quando preencho "E-mail" com "discente@unb.br"
-    E preencho "Senha" com "senhaerrada"
+  Esquema do Cenário: Tentativas de login com dados inválidos ou malformados
+    Quando preencho "E-mail" com "<email_inserido>"
+    E preencho "Senha" com "<senha_inserida>"
     E clico em "Entrar"
     Então devo permanecer na página de login
-    E devo ver a mensagem "E-mail ou senha inválidos"
+    E devo ver a mensagem "<mensagem_esperada>"
+
+    Exemplos:
+      | email_inserido   | senha_inserida | mensagem_esperada                     |
+      | discente@unb.br  | senhaerrada    | E-mail ou senha inválidos             |
+      | naoexiste@unb.br | qualquer123    | E-mail ou senha inválidos             |
+      | emailsemarroba   | senha123       | E-mail inválido                       |
+      | discente@unb.br  | 123            | E-mail ou senha inválidos             |
 
   @cenario_triste
-  Cenário: Login com e-mail não cadastrado
-    Quando preencho "E-mail" com "naoexiste@unb.br"
-    E preencho "Senha" com "qualquer123"
-    E clico em "Entrar"
-    Então devo permanecer na página de login
-    E devo ver a mensagem "E-mail ou senha inválidos"
-
-  @cenario_triste
-  Cenário: Login com e-mail em formato inválido
-    Quando preencho "E-mail" com "emailsemarroba"
-    E preencho "Senha" com "senha123"
-    E clico em "Entrar"
-    Então devo permanecer na página de login
-    E devo ver a mensagem "E-mail inválido"
-
-  @cenario_triste
-  Cenário: Login com campo de e-mail vazio
-    Quando preencho "Senha" com "senha123"
+  Esquema do Cenário: Validação de campos obrigatórios não preenchidos
+    Quando preencho "E-mail" com "<email_inserido>"
+    E preencho "Senha" com "<senha_inserida>"
     E clico em "Entrar"
     Então devo permanecer na página de login
     E devo ver a mensagem "Preencha todos os campos obrigatórios"
 
-  @cenario_triste
-  Cenário: Login com campo de senha vazio
-    Quando preencho "E-mail" com "discente@unb.br"
-    E clico em "Entrar"
-    Então devo permanecer na página de login
-    E devo ver a mensagem "Preencha todos os campos obrigatórios"
-
-  @cenario_triste
-  Cenário: Login com todos os campos vazios
-    Quando clico em "Entrar" sem preencher nenhum campo
-    Então devo permanecer na página de login
-    E devo ver a mensagem "Preencha todos os campos obrigatórios"
+    Exemplos:
+      | email_inserido  | senha_inserida |
+      |                 | senha123       |
+      | discente@unb.br |                |
+      |                 |                |
 
   @cenario_triste
   Cenário: Login com usuário inativo
@@ -93,11 +78,3 @@ Funcionalidade: Sistema de Login
     E clico em "Entrar"
     Então devo permanecer na página de login
     E devo ver a mensagem "Usuário inativo. Entre em contato com o administrador"
-
-  @cenario_triste
-  Cenário: Login com senha sem caracteres suficientes
-    Quando preencho "E-mail" com "discente@unb.br"
-    E preencho "Senha" com "123"
-    E clico em "Entrar"
-    Então devo permanecer na página de login
-    E devo ver a mensagem "E-mail ou senha inválidos"
