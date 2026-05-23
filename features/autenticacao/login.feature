@@ -9,21 +9,22 @@ Funcionalidade: Sistema de Login
     Dado que existe um usuário discente com e-mail "discente@unb.br" e senha "senha123"
     E que existe um usuário docente com e-mail "docente@unb.br" e senha "senha123"
     E que existe um usuário administrador com e-mail "admin@unb.br" e senha "admin123"
-    E que existe um usuário com matrícula "23200000" e senha "senha123"
+    E que existe um usuário com matrícula "232000000" e senha "senha123"
     E que estou na página de login
 
   @cenario_feliz
-  Esquema do Cenário: Login bem-sucedido com e-mail
-    Quando preencho "E-mail ou Matrícula" com "<email>"
+  Esquema do Cenário: Login bem-sucedido de usuários padrão
+    Quando preencho "E-mail ou Matrícula" com "<credencial>"
     E preencho "Senha" com "<senha>"
     E clico em "Entrar"
     Então devo ser redirecionado para a página inicial
     E devo ver o menu de navegação
 
     Exemplos:
-      | email           | senha    |
+      | credencial      | senha    |
       | discente@unb.br | senha123 |
       | docente@unb.br  | senha123 |
+      | 232000000       | senha123 |
 
   @cenario_feliz
   Cenário: Login bem-sucedido como administrador exibe menu de gerenciamento
@@ -33,13 +34,6 @@ Funcionalidade: Sistema de Login
     Então devo ser redirecionado para a página inicial
     E devo ver o menu de navegação
     E devo ver a opção de gerenciamento no menu lateral
-
-  @cenario_feliz
-  Cenário: Login bem-sucedido com matrícula
-    Quando preencho "E-mail ou Matrícula" com "23200000"
-    E preencho "Senha" com "senha123"
-    E clico em "Entrar"
-    Então devo ser redirecionado para a página inicial
 
   @cenario_triste
   Esquema do Cenário: Tentativas de login com dados inválidos ou malformados
@@ -55,8 +49,8 @@ Funcionalidade: Sistema de Login
       | naoexiste@unb.br | qualquer123    | E-mail ou senha inválidos             |
       | emailsemarroba   | senha123       | E-mail inválido                       |
       | discente@unb.br  | 123            | E-mail ou senha inválidos             |
-      | 202300000        | senhaerrada    | Matrícula ou senha inválidos          |
-      | 202300000        | 123            | Matrícula ou senha inválidos          |
+      | 232000000        | senhaerrada    | Matrícula ou senha inválidos          |
+      | 232000000        | 123            | Matrícula ou senha inválidos          |
 
   @cenario_triste
   Esquema do Cenário: Validação de campos obrigatórios não preenchidos
@@ -68,9 +62,9 @@ Funcionalidade: Sistema de Login
 
     Exemplos:
       | email_inserido  | senha_inserida |
-      |                 | senha123       |
-      | discente@unb.br |                |
-      |                 |                |
+      | ""              | senha123       |
+      | discente@unb.br | ""             |
+      | ""              | ""             |
 
   @cenario_triste
   Cenário: Login com usuário inativo
