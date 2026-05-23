@@ -48,9 +48,9 @@ Funcionalidade: Sistema de definição de senha
 
     Exemplos:
       | nova_senha | confirmacao |
-      |            | senha123    |
-      | senha123   |             |
-      |            |             |
+      | ""        | senha123    |
+      | senha123  | ""          |
+      | ""        | ""          |
 
   @cenario_triste
   Cenário: Token de definição de senha expirado
