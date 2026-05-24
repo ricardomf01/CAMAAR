@@ -10,7 +10,7 @@ class CreateQuestoesTemplate < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :questoes_template, [:template_id, :ordem], unique: true
+    add_index :questoes_template, [ :template_id, :ordem ], unique: true
 
     add_foreign_key :questoes_template, :templates, column: :template_id
   end

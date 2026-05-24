@@ -10,7 +10,7 @@ class CreateRespostaItens < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :resposta_itens, [:resposta_id, :questao_template_id], unique: true
+    add_index :resposta_itens, [ :resposta_id, :questao_template_id ], unique: true
     add_index :resposta_itens, :questao_template_id
 
     add_foreign_key :resposta_itens, :respostas,         column: :resposta_id

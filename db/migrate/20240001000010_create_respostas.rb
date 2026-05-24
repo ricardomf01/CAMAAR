@@ -8,7 +8,7 @@ class CreateRespostas < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :respostas, [:formulario_id, :usuario_id], unique: true
+    add_index :respostas, [ :formulario_id, :usuario_id ], unique: true
     add_index :respostas, :usuario_id
 
     add_foreign_key :respostas, :formularios, column: :formulario_id
