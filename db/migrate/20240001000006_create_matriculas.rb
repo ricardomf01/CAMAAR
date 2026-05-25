@@ -8,7 +8,7 @@ class CreateMatriculas < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :matriculas, [:turma_id, :usuario_id], unique: true
+    add_index :matriculas, [ :turma_id, :usuario_id ], unique: true
     add_index :matriculas, :usuario_id
 
     add_foreign_key :matriculas, :turmas,   column: :turma_id
