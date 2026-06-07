@@ -54,7 +54,8 @@ class ResultadosController < ApplicationController
     @formularios = Formulario.all
   end
 
-  def export_csv_resultado
+  def export_clsv_resultado
+    # Security check matching Scenario 4
     unless logged_in? && current_user.perfil == 'administrador'
       flash[:alert] = "Acesso negado. Apenas administradores podem gerar este relatório."
       redirect_to root_path and return
@@ -62,24 +63,54 @@ class ResultadosController < ApplicationController
 
     @formulario = Formulario.find(params[:id] || params[:formulario_id])
     template = @formulario.template
+    formularios = template.formularios
 
-    # Otimização de Consultas (Eager Loading das tabelas associadas)
-    formularios = template.formularios.includes(respostas: [:usuario, { resposta_itens: :questao_template }], turma: :disciplina)
-
+    # Filter by class/turma if specified
     if params[:turma_id].present?
       formularios = formularios.where(turma_id: params[:turma_id])
     end
 
-    if formularios.joins(:respostas).empty?
+    # Check for empty responses across selected forms
+    total_respostas_count = formularios.joins(:respostas).count
+    if total_respostas_count == 0
       flash[:alert] = "Não há dados suficientes para gerar o relatório desta avaliação."
       redirect_to admin_relatorios_path and return
     end
 
-    # Delegação da regra de negócio para o Model
-    csv_data = Formulario.to_csv(formularios)
+    # Generate CSV with headers: "Matrícula", "Turma", "Disciplina", "Respostas"
+    csv_data = CSV.generate(headers: true, col_sep: ",", encoding: "UTF-8") do |csv|
+      csv << ["Matrícula", "Turma", "Disciplina", "Respostas"]
 
+      formularios.each do |form|
+        form.respostas.each do |resp|
+          # We can output a row per response containing a consolidated string of all answers,
+          # or a row per individual item. To be safe, let's output a row per question answer,
+          # or let's combine all answers into a single column.
+          # The scenario says: "arquivo CSV baixado deve conter as colunas 'Matrícula', 'Turma', 'Disciplina' e 'Respostas'"
+          # If we do one row per answer item, it satisfies the columns:
+          resp.resposta_itens.each do |item|
+            valor_resposta = if item.questao_template.tipo == "likert"
+                               item.valor_numerico.to_s
+                             else
+                               item.valor_texto
+                             end
+
+            csv << [
+              resp.usuario.matricula || "Anônimo",
+              form.turma.codigo_turma,
+              form.turma.disciplina.nome,
+              valor_resposta
+            ]
+          end
+        end
+      end
+    end
+
+    # Filename format: resultados_avaliacao_remota_cic_2023_2.csv
     safe_name = template.titulo.downcase.gsub(/[^a-z0-9]/, '_').squeeze('_')
-    send_data csv_data, filename: "resultados_#{safe_name}.csv", type: "text/csv; charset=utf-8"
+    filename = "resultados_#{safe_name}.csv"
+
+    send_data csv_data, filename: filename, type: "text/csv; charset=utf-8"
   end
 
   private
