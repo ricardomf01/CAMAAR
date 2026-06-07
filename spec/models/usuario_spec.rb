@@ -13,4 +13,14 @@ RSpec.describe Usuario, type: :model do
       expect(usuario).not_to be_valid
     end
   end
+
+  describe 'setup token' do
+    it 'generates a setup token' do
+      usuario = Usuario.create(nome: 'Test User', email: 'test@unb.br', perfil: 'discente', ativo: false, password: 'password123')
+      usuario.generate_setup_token!
+      expect(usuario.setup_token).to be_present
+      expect(usuario.setup_token_sent_at).to be_present
+      expect(usuario.setup_token_used).to be false
+    end
+  end
 end
