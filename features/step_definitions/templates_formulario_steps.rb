@@ -120,7 +120,7 @@ Dado('que estou na página de listagem de templates') do
 end
 
 Quando('clico em {string} no template {string}') do |acao, titulo|
-  within(:xpath, "//div[p[text()='#{titulo}']]") do
+  within(:xpath, "//div[contains(@class, 'flex items-center justify-between') and .//p[text()='#{titulo}']]") do
     click_link acao
   end
 end
@@ -148,6 +148,11 @@ Dado('existe um formulário ativo gerado a partir do template {string}') do |tit
   dcc = Departamento.find_or_create_by!(nome: "DCC")
   disc = Disciplina.find_or_create_by!(codigo: "CIC01", nome: "M")
   turma = Turma.create!(codigo_turma: "TA_NEW", semestre: "2026.1", disciplina: disc, departamento: dcc)
+  
+  # Adicionar um aluno à turma para passar na validação do Formulario
+  aluno = Usuario.create!(nome: "Aluno", email: "aluno@unb.br", matricula: "123", perfil: "discente", password: "123")
+  Matricula.create!(usuario: aluno, turma: turma, papel_na_turma: "aluno")
+  
   Formulario.create!(template: t, turma: turma, criado_por: admin, publico_alvo: "discente", status: "aberto", data_inicio: Time.current, data_limite: Time.current + 7.days)
 end
 
