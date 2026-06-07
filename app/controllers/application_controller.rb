@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
 
   def require_admin
     unless logged_in? && current_user.perfil == 'administrador'
-      flash[:alert] = "Acesso restrito a administradores."
+      flash[:alert] = "Acesso negado. Esta área é restrita para administradores."
       redirect_to root_path
     end
   end
