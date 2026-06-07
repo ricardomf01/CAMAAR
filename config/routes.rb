@@ -9,6 +9,10 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
+  # Admin special department actions
+  get "admin/turmas" => "admin#turmas", as: :admin_turmas
+  get "admin/turmas/:id/avaliacoes" => "admin#turma_avaliacoes", as: :admin_turma_avaliacoes
+  get "admin/desempenho_semestral" => "admin#desempenho_semestral", as: :admin_desempenho_semestral
 
   # Admin CSV Report
   get "admin/relatorios/csv" => "resultados#export_csv_resultado", as: :admin_relatorios_csv
