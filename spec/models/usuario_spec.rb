@@ -23,4 +23,14 @@ RSpec.describe Usuario, type: :model do
       expect(usuario.setup_token_used).to be false
     end
   end
+
+  describe 'reset token' do
+    it 'generates a reset token' do
+      usuario = Usuario.create(nome: 'Test User', email: 'test@unb.br', perfil: 'discente', ativo: true, password: 'password123')
+      usuario.generate_reset_token!
+      expect(usuario.reset_token).to be_present
+      expect(usuario.reset_token_sent_at).to be_present
+      expect(usuario.reset_token_used).to be false
+    end
+  end
 end
