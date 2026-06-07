@@ -7,6 +7,7 @@ class TemplatesController < ApplicationController
   end
 
   def create
+    # Inicializa um novo template com os parâmetros fornecidos
     @template = Template.new(
       titulo: params[:template][:titulo],
       perfil_alvo: params[:template][:perfil_alvo],
