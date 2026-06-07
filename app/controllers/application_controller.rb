@@ -23,7 +23,7 @@ class ApplicationController < ActionController::Base
   end
 
   def require_admin
-    unless logged_in? && current_user.perfil == 'administrador'
+    unless logged_in? && current_user.perfil == "administrador"
       flash[:alert] = "Acesso restrito a administradores."
       redirect_to root_path
     end
