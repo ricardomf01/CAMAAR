@@ -1,5 +1,29 @@
 require 'rails_helper'
 
 RSpec.describe Usuario, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe 'validations' do
+    it 'is valid with valid attributes' do
+      usuario = Usuario.new(nome: 'Test User', email: 'test@unb.br', perfil: 'discente', ativo: true)
+      usuario.password = '123456'
+      expect(usuario).to be_valid
+    end
+
+    it 'is not valid without an email' do
+      usuario = Usuario.new(nome: 'Test', email: nil, perfil: 'discente')
+      expect(usuario).not_to be_valid
+    end
+  end
+
+  # --- INÍCIO DOS TESTES DA ISSUE #106 (ESTADO RED) ---
+  describe "Regras de permissão por departamento (Issue #106)" do
+    describe "#pode_gerenciar_turma?" do
+      it "retorna verdadeiro se a turma pertencer ao mesmo departamento do administrador" do
+        fail "Pendente: Implementar método no model Usuario para validar permissão de turma"
+      end
+
+      it "retorna falso se a turma pertencer a um departamento diferente" do
+        fail "Pendente: Garantir que a validação falhe para turmas de outros departamentos"
+      end
+    end
+  end
 end
