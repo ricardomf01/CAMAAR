@@ -32,7 +32,7 @@ class Formulario < ApplicationRecord
   def turma_has_students_for_discente_form
     if publico_alvo.to_s.downcase.include?("discente") && turma.present?
       # Check count of discentes in the class
-      discentes_count = turma.matriculas.where(papel_na_turma: ["aluno", "discente"]).count
+      discentes_count = turma.matriculas.where(papel_na_turma: [ "aluno", "discente" ]).count
       if discentes_count == 0
         errors.add(:base, "Ação inválida: Esta turma ainda não possui discentes vinculados no SIGAA para responderem à avaliação.")
       end

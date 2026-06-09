@@ -22,7 +22,7 @@ Rails.application.routes.draw do
   get "admin/relatorios" => "resultados#relatorios", as: :admin_relatorios
 
   # Formularios (Distribution)
-  resources :formularios, only: [:new, :create]
+  resources :formularios, only: [ :new, :create ]
 
   # Resultados (Consolidated reports)
   get "resultados" => "resultados#index", as: :resultados

@@ -1,7 +1,7 @@
 require "csv"
 
 class ResultadosController < ApplicationController
-  before_action :require_admin_for_resultados, only: [:index, :show, :relatorios]
+  before_action :require_admin_for_resultados, only: [ :index, :show, :relatorios ]
 
   def index
     @formularios = Formulario.all
@@ -56,7 +56,7 @@ class ResultadosController < ApplicationController
 
   def export_clsv_resultado
     # Security check matching Scenario 4
-    unless logged_in? && current_user.perfil == 'administrador'
+    unless logged_in? && current_user.perfil == "administrador"
       flash[:alert] = "Acesso negado. Apenas administradores podem gerar este relatório."
       redirect_to root_path and return
     end
@@ -79,7 +79,7 @@ class ResultadosController < ApplicationController
 
     # Generate CSV with headers: "Matrícula", "Turma", "Disciplina", "Respostas"
     csv_data = CSV.generate(headers: true, col_sep: ",", encoding: "UTF-8") do |csv|
-      csv << ["Matrícula", "Turma", "Disciplina", "Respostas"]
+      csv << [ "Matrícula", "Turma", "Disciplina", "Respostas" ]
 
       formularios.each do |form|
         form.respostas.each do |resp|
@@ -91,9 +91,9 @@ class ResultadosController < ApplicationController
           resp.resposta_itens.each do |item|
             valor_resposta = if item.questao_template.tipo == "likert"
                                item.valor_numerico.to_s
-                             else
+            else
                                item.valor_texto
-                             end
+            end
 
             csv << [
               resp.usuario.matricula || "Anônimo",
@@ -107,7 +107,7 @@ class ResultadosController < ApplicationController
     end
 
     # Filename format: resultados_avaliacao_remota_cic_2023_2.csv
-    safe_name = template.titulo.downcase.gsub(/[^a-z0-9]/, '_').squeeze('_')
+    safe_name = template.titulo.downcase.gsub(/[^a-z0-9]/, "_").squeeze("_")
     filename = "resultados_#{safe_name}.csv"
 
     send_data csv_data, filename: filename, type: "text/csv; charset=utf-8"
@@ -116,7 +116,7 @@ class ResultadosController < ApplicationController
   private
 
   def require_admin_for_resultados
-    unless logged_in? && current_user.perfil == 'administrador'
+    unless logged_in? && current_user.perfil == "administrador"
       flash[:alert] = "Acesso negado: Perfil não autorizado"
       redirect_to root_path
     end
