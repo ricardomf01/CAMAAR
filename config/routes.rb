@@ -35,7 +35,6 @@ Rails.application.routes.draw do
 
   # Templates CRUD and endpoints
   resources :templates, only: [ :index, :create, :destroy, :edit, :update ]
-
   # Formularios (Distribution)
   resources :formularios, only: [ :new, :create ]
 
