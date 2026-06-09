@@ -15,7 +15,7 @@ RSpec.describe Template, type: :model do
     end
 
     it 'is valid with a title and questions, skipping question validation' do
-      criador = Usuario.new(nome: 'Admin', email: 'admin@unb.br', perfil: 'administrador')
+      criador = Usuario.new(nome: 'Admin', email: 'admin@unb.br', perfil: 'administrador', senha_hash: 'dummy')
       criador.save!(validate: false)
       template = Template.new(titulo: 'Valid Title', criador: criador)
       template.skip_questions_validation = true

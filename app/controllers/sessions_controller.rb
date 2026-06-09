@@ -32,7 +32,7 @@ class SessionsController < ApplicationController
         if usuario.ativo?
           session[:usuario_id] = usuario.id
           flash[:notice] = "Bem-vindo, #{usuario.nome}!"
-          if usuario.perfil == 'administrador'
+          if usuario.perfil == "administrador"
             redirect_to admin_dashboard_path
           else
             redirect_to avaliacoes_path

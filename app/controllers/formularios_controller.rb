@@ -55,7 +55,7 @@ class FormulariosController < ApplicationController
       else
         @templates = Template.all
         @turmas = Turma.all
-        
+
         # Exact mapping of validation messages to flash alert to satisfy Cucumber
         alert_msg = @formulario.errors.full_messages.first
         if @formulario.errors[:template_id].any? { |e| e.include?("templates inativos") } || @formulario.errors.full_messages.any? { |m| m.include?("templates inativos") }
