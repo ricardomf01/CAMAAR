@@ -34,10 +34,10 @@ Rails.application.routes.draw do
   post "admin/sigaa_update" => "admin#sigaa_update", as: :sigaa_update
 
   # Templates CRUD and endpoints
-  resources :templates, only: [:index, :create, :destroy, :edit, :update]
+  resources :templates, only: [ :index, :create, :destroy, :edit, :update ]
 
   # Formularios (Distribution)
-  resources :formularios, only: [:new, :create]
+  resources :formularios, only: [ :new, :create ]
 
   # Resultados (Consolidated reports)
   get "resultados" => "resultados#index", as: :resultados
