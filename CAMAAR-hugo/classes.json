@@ -1,0 +1,83 @@
+[
+    {
+        "code": "CIC0097",
+        "name": "BANCOS DE DADOS",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35T45"
+        }
+    },
+    {
+        "code": "CIC0105",
+        "name": "ENGENHARIA DE SOFTWARE",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35M12"
+        }
+    },
+    {
+        "code": "CIC0202",
+        "name": "PROGRAMAÇÃO CONCORRENTE",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35M34"
+        }
+    },
+    {
+        "code": "CIC0003",
+        "name": "INTRODUÇÃO AOS SISTEMAS COMPUTACIONAIS",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35T45"
+        }
+    },
+    {
+        "code": "CIC0004",
+        "name": "ALGORITMOS E PROGRAMAÇÃO DE COMPUTADORES",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35M12"
+        }
+    },
+    {
+        "code": "CIC0002",
+        "name": "FUNDAMENTOS TEÓRICOS DA COMPUTAÇÃO",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35M34"
+        }
+    },
+    {
+        "code": "CIC0090",
+        "name": "ESTRUTURAS DE DADOS",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35T45"
+        }
+    },
+    {
+        "code": "CIC0229",
+        "name": "CIRCUITOS LÓGICOS",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35M12"
+        }
+    },
+    {
+        "code": "CIC0197",
+        "name": "TECNICAS DE PROGRAMAÇÃO 1",
+        "class": {
+            "classCode": "TA",
+            "semester": "2026.1",
+            "time": "35M34"
+        }
+    }
+]
