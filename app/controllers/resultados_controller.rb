@@ -54,7 +54,7 @@ class ResultadosController < ApplicationController
     @formularios = Formulario.all
   end
 
-  def export_clsv_resultado
+  def export_csv_resultado
     # Security check matching Scenario 4
     unless logged_in? && current_user.perfil == "administrador"
       flash[:alert] = "Acesso negado. Apenas administradores podem gerar este relatório."

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2024_00_01_000011) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_27_131217) do
   create_table "cursos", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "nome", limit: 150, null: false
@@ -96,6 +96,7 @@ ActiveRecord::Schema[8.1].define(version: 2024_00_01_000011) do
     t.datetime "created_at", null: false
     t.bigint "criador_id", null: false
     t.text "descricao"
+    t.string "perfil_alvo"
     t.string "titulo", limit: 150, null: false
     t.datetime "updated_at", null: false
     t.integer "versao", default: 1, null: false
@@ -125,7 +126,13 @@ ActiveRecord::Schema[8.1].define(version: 2024_00_01_000011) do
     t.string "matricula", limit: 30
     t.string "nome", limit: 150, null: false
     t.string "perfil", limit: 20, null: false
+    t.string "reset_token"
+    t.datetime "reset_token_sent_at"
+    t.boolean "reset_token_used", default: false, null: false
     t.string "senha_hash", limit: 255, null: false
+    t.string "setup_token"
+    t.datetime "setup_token_sent_at"
+    t.boolean "setup_token_used", default: false, null: false
     t.datetime "updated_at", null: false
     t.index ["curso_id"], name: "index_usuarios_on_curso_id"
     t.index ["departamento_id"], name: "index_usuarios_on_departamento_id"
