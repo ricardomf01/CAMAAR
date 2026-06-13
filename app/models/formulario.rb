@@ -13,6 +13,8 @@ class Formulario < ApplicationRecord
   validate :template_must_be_active
   validate :turma_has_students_for_discente_form
   validate :no_active_form_for_same_public
+  validates :data_inicio, presence: { message: "Data de início não pode ficar em branco" }
+  validates :data_limite, presence: { message: "Data limite não pode ficar em branco" }
 
   private
 

@@ -557,7 +557,9 @@ Dado('que a turma {string} já possui um formulário ativo direcionado aos {stri
     publico_alvo: publico.downcase.singularize,
     status: 'aberto',
     template: template,
-    criado_por: admin
+    criado_por: admin,
+    data_inicio: Date.today,
+    data_limite: Date.today + 1.day
   )
 end
 
@@ -594,6 +596,8 @@ end
 
 Quando('seleciona o público-alvo como {string}') do |publico|
   select publico, from: 'publico_alvo'
+  fill_in "data_inicio", with: Date.today.to_s if page.has_field?("data_inicio")
+  fill_in "data_limite", with: (Date.today + 15).to_s if page.has_field?("data_limite")
 end
 
 Quando('clica em {string}') do |botao|
@@ -638,6 +642,8 @@ Quando('o administrador tenta criar um formulário selecionando o público-alvo 
   select "#{turma.codigo} - Turma #{turma.nome}", from: 'turma_id' if turma
 
   select publico, from: 'publico_alvo'
+  fill_in "data_inicio", with: Date.today.to_s if page.has_field?("data_inicio")
+  fill_in "data_limite", with: (Date.today + 15).to_s if page.has_field?("data_limite")
 end
 
 Quando('o administrador tenta criar uma nova avaliação e seleciona novamente {string} como público-alvo') do |publico|
@@ -650,6 +656,8 @@ Quando('o administrador tenta criar uma nova avaliação e seleciona novamente {
   select "#{turma.codigo} - Turma #{turma.nome}", from: 'turma_id' if turma
 
   select publico, from: 'publico_alvo'
+  fill_in "data_inicio", with: Date.today.to_s if page.has_field?("data_inicio")
+  fill_in "data_limite", with: (Date.today + 15).to_s if page.has_field?("data_limite")
   click_button "Salvar e Publicar"
 end
 

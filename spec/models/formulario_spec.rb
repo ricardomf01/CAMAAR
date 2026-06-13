@@ -41,9 +41,25 @@ RSpec.describe Formulario, type: :model do
 
       turma.matriculas.create!(usuario: discente, papel_na_turma: 'discente')
 
-      Formulario.create!(turma: turma, publico_alvo: 'discente', status: 'aberto', template: template, criado_por: admin)
+      Formulario.create!(
+        turma: turma, 
+        publico_alvo: 'discente', 
+        status: 'aberto', 
+        template: template, 
+        criado_por: admin,
+        data_inicio: Time.current,
+        data_limite: Time.current + 1.day
+      )
 
-      novo_formulario = Formulario.new(turma: turma, publico_alvo: 'discente', status: 'aberto', template: template, criado_por: admin)
+      novo_formulario = Formulario.new(
+        turma: turma, 
+        publico_alvo: 'discente', 
+        status: 'aberto', 
+        template: template, 
+        criado_por: admin,
+        data_inicio: Time.current,
+        data_limite: Time.current + 1.day
+      )
 
       expect(novo_formulario).not_to be_valid
       expect(novo_formulario.errors[:base]).to include("Atenção: Já existe um formulário ativo para os discentes desta turma. Encerre o atual antes de publicar um novo.")

@@ -58,7 +58,9 @@ Dado('existe um formulário de avaliação chamado {string}') do |nome_formulari
     criado_por: @usuario,
     template: @template,
     publico_alvo: "discente",
-    status: "fechado"
+    status: "fechado",
+    data_inicio: Date.today,
+    data_limite: Date.today + 1.day
   )
 end
 
@@ -145,7 +147,9 @@ Dado('que foi criado um novo formulário chamado {string}') do |nome_formulario|
     criado_por: @usuario,
     template: @template,
     publico_alvo: "discente",
-    status: "fechado"
+    status: "fechado",
+    data_inicio: Date.today,
+    data_limite: Date.today + 1.day
   )
 end
 

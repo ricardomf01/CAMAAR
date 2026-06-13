@@ -253,6 +253,12 @@ class AdminController < ApplicationController
   end
 
   def sigaa_update
+    if params[:release_lock] == "true"
+      @@sigaa_updating = false
+      flash[:notice] = "Trava liberada com sucesso."
+      redirect_to admin_import_console_path and return
+    end
+
     # Class variable to track background update locks
     if @@sigaa_updating || ENV["SIGAA_UPDATING_MOCK"] == "true"
       flash[:alert] = "Uma atualização já está em andamento. Aguarde a conclusão."
