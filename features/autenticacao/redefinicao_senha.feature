@@ -34,7 +34,7 @@ Funcionalidade: Redefinição de senha
     E preencho "E-mail ou Matrícula" com "usuario@unb.br"
     E preencho "Senha" com "novasenha123"
     E clico em "Entrar"
-    Então devo ser redirecionado para a página inicial
+    Então devo ser redirecionado para a minha página inicial
 
   @cenario_triste
   Cenário: Senha antiga não funciona após redefinição

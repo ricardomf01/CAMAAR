@@ -110,14 +110,10 @@ Quando('preencho {string} com {string}{string}') do |field, val1, val2|
   fill_in field, with: "#{val1}#{val2}"
 end
 
-Quando('clico em {string}') do |button_label|
-  click_link_or_button button_label
-end
-
 
 # --- Redirection & View Assertions ---
 
-Então('devo ser redirecionado para a página inicial') do
+Então('devo ser redirecionado para a minha página inicial') do
   # Page after login is either /avaliacoes or /admin/dashboard
   expect(current_path).to eq(avaliacoes_path).or eq(admin_dashboard_path)
 end
@@ -132,10 +128,6 @@ end
 
 Então('devo permanecer na página de login') do
   expect(current_path).to eq(login_path)
-end
-
-Então('devo ver a mensagem {string}') do |expected_msg|
-  expect(page).to have_content(expected_msg)
 end
 
 Então('devo ser redirecionado para a página de login') do
