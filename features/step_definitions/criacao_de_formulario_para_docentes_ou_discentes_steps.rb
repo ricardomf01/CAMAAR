@@ -8,7 +8,7 @@ Dado('que existe um administrador logado no CAMAAR') do
     admin.save!
   end
   # Simulamos um usuário logado armazenando na sessão (para Capybara)
-  # Nota: A autenticação real será implementada em otra fase
+  Thread.current[:test_usuario_id] = admin.id
 end
 
 Dado('o semestre letivo atual está configurado') do
@@ -128,7 +128,9 @@ Dado('que a turma {string} já possui um formulário ativo direcionado aos {stri
   # Criar um template
   template = Template.first
   unless template
-    template = Template.create!(titulo: "Template Padrão", ativo: true, criador_id: admin.id)
+    template = Template.create!(titulo: "Template Padrão", ativo: true, criador_id: admin.id) do |t|
+      t.skip_questions_validation = true
+    end
   end
 
   # Criar o formulário ativo
@@ -157,15 +159,18 @@ Quando('ele preenche os dados do formulário com o título {string}') do |titulo
 
   template = Template.where(titulo: titulo).first
   unless template
-    template = Template.create!(titulo: titulo, ativo: true, criador_id: admin.id)
+    template = Template.create!(titulo: titulo, ativo: true, criador_id: admin.id) do |t|
+      t.skip_questions_validation = true
+    end
   end
 
+  visit current_path
   select template.titulo, from: 'template_id'
 
   # Selecionar uma turma aleatória
   turma = Turma.first
   if turma
-    select turma.codigo_turma, from: 'turma_id'
+    select "#{turma.codigo} - Turma #{turma.nome}", from: 'turma_id'
   end
 end
 
@@ -178,7 +183,15 @@ Quando('clica em {string}') do |botao|
 end
 
 Quando('ele preenche todas as perguntas da avaliação') do
-  # Placeholder para futura implementação de preenchimento de perguntas
+  admin = Usuario.where(perfil: "administrador").first || Usuario.create!(nome: 'Admin', email: 'admin@camaar.com', perfil: 'administrador', password: 'password')
+  template = Template.first || Template.create!(titulo: "Template Padrão", ativo: true, criador_id: admin.id) do |t|
+    t.skip_questions_validation = true
+  end
+  visit current_path
+  select template.titulo, from: 'template_id'
+
+  turma = Turma.first
+  select "#{turma.codigo} - Turma #{turma.nome}", from: 'turma_id' if turma
 end
 
 Quando('deixa o campo de seleção {string} em branco') do |campo|
@@ -190,19 +203,21 @@ Quando('tenta clicar em {string}') do |botao|
 end
 
 Quando('o administrador tenta criar um formulário selecionando o público-alvo como {string} para esta turma') do |publico|
-  visit new_formulario_path
-
   # Selecionar template
   template = Template.first || Template.create!(
     titulo: "Template Padrão",
     ativo: true,
     criador_id: Usuario.where(perfil: "administrador").first.id
-  )
+  ) do |t|
+    t.skip_questions_validation = true
+  end
+
+  visit new_formulario_path
   select template.titulo, from: 'template_id'
 
   # Selecionar turma vazia
   turma = Turma.where("codigo_turma LIKE ?", "%Tópicos%").first
-  select turma.codigo_turma, from: 'turma_id' if turma
+  select "#{turma.codigo} - Turma #{turma.nome}", from: 'turma_id' if turma
 
   select publico, from: 'publico_alvo'
 end
@@ -214,9 +229,10 @@ Quando('o administrador tenta criar uma nova avaliação e seleciona novamente {
   select template.titulo, from: 'template_id'
 
   turma = Turma.where("codigo_turma LIKE ?", "%Engenharia%").first
-  select turma.codigo_turma, from: 'turma_id' if turma
+  select "#{turma.codigo} - Turma #{turma.nome}", from: 'turma_id' if turma
 
   select publico, from: 'publico_alvo'
+  click_button "Salvar e Publicar"
 end
 
 # --- THENS (VERIFICAÇÕES) ---
@@ -242,7 +258,7 @@ Então('o sistema não deve notificar ou exibir o formulário para os alunos') d
 end
 
 Então('a validação do formulário deve falhar') do
-  expect(page).to have_content('erro') or expect(page).to have_content('Obrigatório') or expect(page).to have_content('alerta')
+  expect(page).to have_css('.bg-red-50, .alert, .error, .flash-alert')
 end
 
 Então('o sistema deve exibir a mensagem de erro {string}') do |mensagem|
@@ -266,4 +282,3 @@ end
 Então('exibir a mensagem de aviso {string}') do |mensagem|
   expect(page).to have_content(mensagem)
 end
-
