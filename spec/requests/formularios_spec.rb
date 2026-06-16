@@ -29,7 +29,7 @@ RSpec.describe "Formularios e Avaliações", type: :request do
         post login_path, params: { email: discente.email, password: "123" }
         get avaliacoes_path
         expect(response.body).to include("Disc") # Formulário visível
-        
+
         # Logout e Login Docente
         delete logout_path
         post login_path, params: { email: docente.email, password: "123" }
@@ -49,7 +49,7 @@ RSpec.describe "Formularios e Avaliações", type: :request do
         post login_path, params: { email: docente.email, password: "123" }
         get avaliacoes_path
         expect(response.body).to include("Disc") # Formulário visível
-        
+
         # Logout e Login Discente
         delete logout_path
         post login_path, params: { email: discente.email, password: "123" }

@@ -3,7 +3,7 @@
 
 Dado('que eu estou logado como um "usuarios" cujo "perfil" é "administrador"') do
   @admin = Usuario.find_by(perfil: 'administrador') || Usuario.create!(
-    nome: "Administrador", email: "admin@unb.br", matricula: "admin", 
+    nome: "Administrador", email: "admin@unb.br", matricula: "admin",
     perfil: "administrador", password: "admin", ativo: true
   )
   visit login_path
@@ -60,7 +60,7 @@ Quando('tento criar um "formularios" configurando a "data_limite" para um moment
   @disc = Disciplina.find_or_create_by!(codigo: "CIC", nome: "CIC")
   @turma = Turma.create!(codigo_turma: "TA", semestre: "2026.1", departamento: @dcc, disciplina: @disc)
   @template = Template.create!(criador: @admin || Usuario.find_by(perfil: "administrador") || Usuario.create!(nome: "Admin", email: "admin_unique#{rand(1000)}@unb.br", matricula: "admin_#{rand(1000)}", perfil: "administrador", password: "admin", ativo: true), skip_questions_validation: true, titulo: "Avaliação", ativo: true)
-  
+
   @count_before = Formulario.count
   visit new_formulario_path
   select @template.titulo, from: "template_id"
@@ -111,7 +111,7 @@ Quando('o administrador tenta criar um "formularios" apontando para o "template_
   @template_inativo.update!(ativo: true)
   visit new_formulario_path
   @template_inativo.update!(ativo: false)
-  
+
   select @template_inativo.titulo, from: "template_id"
   find("input.turma-checkbox[value='#{@turma.id}']").set(true)
   select "Discentes", from: "publico_alvo"

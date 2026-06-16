@@ -3,7 +3,7 @@
 
 Dado('que estou logado com o "perfil" de "administrador"') do
   @admin = Usuario.find_by(perfil: 'administrador') || Usuario.create!(
-    nome: "Administrador", email: "admin@unb.br", matricula: "admin", 
+    nome: "Administrador", email: "admin@unb.br", matricula: "admin",
     perfil: "administrador", password: "admin", ativo: true
   )
   visit login_path
@@ -20,7 +20,7 @@ Dado('existe um "formularios" que recebeu registros na tabela "respostas"') do
   @template = Template.create!(criador: @admin || Usuario.find_by(perfil: "administrador") || Usuario.create!(nome: "Admin", email: "admin_unique919@unb.br", matricula: "admin_756", perfil: "administrador", password: "admin", ativo: true), skip_questions_validation: true, titulo: "T5", ativo: true)
   @questao = @template.perguntas.create!(enunciado: "Avalie de 1 a 5", tipo: "likert", obrigatoria: true, ordem: 1)
   @form = Formulario.create!(criado_por: @admin || Usuario.find_by(perfil: "administrador") || Usuario.create!(nome: "Admin", email: "admin_unique919@unb.br", matricula: "admin_756", perfil: "administrador", password: "admin", ativo: true), turma: @turma, template: @template, status: "aberto", publico_alvo: "discente", data_inicio: Date.today, data_limite: Date.today + 10)
-  
+
   @aluno = Usuario.create!(nome: "A1", email: "a1@u", matricula: "a1", perfil: "discente", password: "a1", ativo: true)
   @resposta = Resposta.create!(formulario: @form, usuario: @aluno, enviado_em: Time.current)
 end

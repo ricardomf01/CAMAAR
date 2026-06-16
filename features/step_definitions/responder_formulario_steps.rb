@@ -128,5 +128,3 @@ end
 Então('o sistema deve bloquear a operação respeitando o índice único composto de "index_respostas_on_formulario_id_and_usuario_id"') do
   # Checked by next step content
 end
-
-

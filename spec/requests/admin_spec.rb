@@ -41,7 +41,7 @@ RSpec.describe "Admins", type: :request do
     let(:departamento_admin) { Departamento.create!(nome: "Dep Admin") }
     let(:departamento_outro) { Departamento.create!(nome: "Outro Dep") }
     let(:disciplina) { Disciplina.create!(nome: "Disc", codigo: "D1") }
-    
+
     before do
       admin_user.update!(departamento: departamento_admin)
     end
@@ -52,14 +52,14 @@ RSpec.describe "Admins", type: :request do
         turma_outra = Turma.create!(codigo_turma: "T2", semestre: "2024.1", departamento: departamento_outro, disciplina: disciplina)
 
         get admin_turmas_path
-        
+
         expect(response.body).to include("T1")
         expect(response.body).not_to include("T2")
       end
 
       it "exibe uma lista vazia e uma mensagem de aviso caso o departamento não tenha turmas" do
         get admin_turmas_path
-        
+
         expect(response.body).to include("Nenhuma turma encontrada para o seu departamento neste semestre")
       end
     end
@@ -69,7 +69,7 @@ RSpec.describe "Admins", type: :request do
         turma_outra = Turma.create!(codigo_turma: "T2", semestre: "2024.1", departamento: departamento_outro, disciplina: disciplina)
 
         get admin_turma_avaliacoes_path(turma_outra)
-        
+
         expect(response).to redirect_to(admin_turmas_path)
         follow_redirect!
         expect(response.body).to include("Acesso negado: Você tem permissão para gerenciar apenas as turmas vinculadas ao seu departamento.")
