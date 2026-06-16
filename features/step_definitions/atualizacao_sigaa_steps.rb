@@ -30,8 +30,9 @@ Dado('que um discente já enviou uma resposta para um formulário de avaliação
   # @turma_atual is used
   @aluno = Usuario.create!(nome: "Aluno Teste", email: "aluno@teste.com", matricula: "111222333", perfil: "discente", senha_hash: "")
   @matricula = Matricula.create!(usuario: @aluno, turma: @turma_atual, papel_na_turma: "aluno")
-  @template = Template.create!(titulo: "t", criador_id: Usuario.find_by(perfil: 'administrador').id)
-  QuestaoTemplate.create!(template: @template, enunciado: "Q1", tipo: "dissertativa", ordem: 1)
+  @template = Template.new(titulo: "t", criador_id: Usuario.find_by(perfil: 'administrador').id)
+  @template.questoes_template.build(enunciado: "Q1", tipo: "dissertativa", ordem: 1)
+  @template.save!
   @form = Formulario.create!(turma: @turma_atual, status: "Fechado", titulo: "Form", publico_alvo: "discente", template: @template)
   @resposta = Resposta.create!(usuario: @aluno, formulario: @form, enviado_em: Time.current)
 end
