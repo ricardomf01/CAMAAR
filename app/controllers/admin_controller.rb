@@ -52,13 +52,13 @@ class AdminController < ApplicationController
       Template.destroy_all
       Matricula.destroy_all
       Turma.destroy_all
-      Usuario.where.not(perfil: 'administrador').destroy_all
+      Usuario.where.not(perfil: "administrador").destroy_all
       Disciplina.destroy_all
       Curso.destroy_all
       Departamento.destroy_all
 
       # Default Admin is already preserved, no need to recreate if it exists
-      admin = Usuario.find_by(perfil: 'administrador') || Usuario.create!(
+      admin = Usuario.find_by(perfil: "administrador") || Usuario.create!(
         nome: "Administrador CAMAAR",
         email: "admin@unb.br",
         matricula: "admin_matricula",
