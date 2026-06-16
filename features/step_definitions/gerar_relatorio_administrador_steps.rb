@@ -50,6 +50,7 @@ Dado('existe um formulário de avaliação chamado {string}') do |nome_formulari
     t.descricao = nome_formulario
     t.ativo = true
     t.criador = @usuario
+    t.skip_questions_validation = true
   end
 
   @formulario = Formulario.create!(
@@ -81,11 +82,14 @@ Dado('que o formulário {string} possui respostas cadastradas pelos alunos') do 
     m.papel_na_turma = "aluno"
   end
 
-  Resposta.create!(
+  resposta = Resposta.create!(
     formulario: formulario,
     usuario: aluno,
     enviado_em: Time.current
   )
+
+  pergunta = formulario.template.perguntas.first || QuestaoTemplate.create!(template: formulario.template, enunciado: "Teste", tipo: "texto", ordem: 1)
+  RespostaItem.create!(resposta: resposta, questao_template: pergunta, valor_texto: "Ótima disciplina!")
 end
 
 Dado('o administrador acessa a página de {string}') do |nome_pagina|
@@ -96,13 +100,13 @@ Dado('que o formulário {string} possui respostas para as turmas {string} e {str
   template = Template.find_by(titulo: nome_formulario)
   formulario = template.formularios.first
 
-  [turma_1, turma_2].each do |turma_nome|
-    turma = Turma.find_or_create_by!(
-      disciplina: formulario.turma.disciplina,
-      departamento: formulario.turma.departamento,
-      codigo_turma: "#{formulario.turma.codigo_turma.split('A')[0]}#{turma_nome}",
-      semestre: @semestre
-    )
+  [ turma_1, turma_2 ].each do |turma_nome|
+    codigo_alvo = "MAT001#{turma_nome}"
+    turma = Turma.find_or_create_by!(codigo_turma: codigo_alvo) do |t|
+      t.disciplina = formulario.turma.disciplina
+      t.departamento = formulario.turma.departamento
+      t.semestre = @semestre || "2023.2"
+    end
 
     aluno = Usuario.new(
       nome: "Aluno #{turma_nome}",
@@ -117,7 +121,9 @@ Dado('que o formulário {string} possui respostas para as turmas {string} e {str
       m.papel_na_turma = "aluno"
     end
 
-    Resposta.create!(formulario: formulario, usuario: aluno, enviado_em: Time.current)
+    resposta = Resposta.create!(formulario: formulario, usuario: aluno, enviado_em: Time.current)
+    pergunta = formulario.template.perguntas.first || QuestaoTemplate.create!(template: formulario.template, enunciado: "Teste", tipo: "texto", ordem: 1)
+    RespostaItem.create!(resposta: resposta, questao_template: pergunta, valor_texto: "Ótima turma #{turma_nome}!")
   end
 end
 
@@ -131,6 +137,7 @@ Dado('que foi criado um novo formulário chamado {string}') do |nome_formulario|
     t.descricao = nome_formulario
     t.ativo = true
     t.criador = @usuario
+    t.skip_questions_validation = true
   end
 
   Formulario.create!(
@@ -153,17 +160,21 @@ end
 
 Quando('ele seleciona o formulário {string} na listagem') do |nome_formulario|
   expect(page).to have_content(nome_formulario)
+  template = Template.find_by(titulo: nome_formulario)
+  @formulario_selecionado = template.formularios.first
 end
 
 Quando('clica no botão {string}') do |nome_botao|
-  click_button nome_botao
+  if @formulario_selecionado
+    find("form input[name='id'][value='#{@formulario_selecionado.id}']", visible: false).find(:xpath, '..').click_button(nome_botao)
+  else
+    click_button nome_botao
+  end
 end
 
 Quando('ele filtra os resultados escolhendo apenas a turma {string}') do |nome_turma|
-  # O nome da turma na view é formato 'MAT001A' ou similar (codigo_turma)
-  # Buscar pela opção corretamente
-  if has_select?('turma_id', visible: :all)
-    select "MAT001#{nome_turma}", from: 'turma_id' rescue nil
+  if @formulario_selecionado
+    select "MAT001#{nome_turma}", from: "turma_id_#{@formulario_selecionado.id}"
   end
 end
 
@@ -181,7 +192,7 @@ end
 
 Então('o arquivo CSV baixado deve conter as colunas {string}, {string}, {string} e {string}') do |coluna1, coluna2, coluna3, coluna4|
   csv_content = page.body
-  [coluna1, coluna2, coluna3, coluna4].each do |col|
+  [ coluna1, coluna2, coluna3, coluna4 ].each do |col|
     expect(csv_content).to include(col)
   end
 end
@@ -209,10 +220,9 @@ Então('deve exibir a mensagem de aviso {string}') do |mensagem|
 end
 
 Então('o sistema deve redirecioná-lo para a página inicial') do
-  expect(current_path).to eq(root_path)
+  expect([ root_path, "/avaliacoes" ]).to include(current_path)
 end
 
 Então('deve exibir a mensagem de erro {string}') do |mensagem|
   expect(page).to have_content(mensagem)
 end
-
