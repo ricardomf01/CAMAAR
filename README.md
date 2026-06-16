@@ -33,7 +33,7 @@ Segue um exemplo de conta de aluno disponível:
 
 ## Exemplo 1 (Ana Clara Jordao Perna)
 
-- **E-mail:** `acjpvjp@gmail.com`
+- **E-mail:** `acjpjvjp@gmail.com`
 - **Matrícula:** `190084006`
 - **Senha:** `190084006`
 
