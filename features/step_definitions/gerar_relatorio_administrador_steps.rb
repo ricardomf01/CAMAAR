@@ -4,7 +4,7 @@ Dado('que existe um usuário com o perfil {string} autenticado no sistema CAMAAR
   @departamento = Departamento.find_or_create_by!(nome: "Ciência da Computação (CIC)")
   @usuario = Usuario.new(
     nome: "Test #{perfil}",
-    email: "#{perfil.downcase}@unb.br",
+    email: "#{perfil.downcase}#{Time.now.to_i}@unb.br",
     perfil: perfil.downcase,
     ativo: true,
     departamento: @departamento
@@ -12,7 +12,7 @@ Dado('que existe um usuário com o perfil {string} autenticado no sistema CAMAAR
   @usuario.password = '123456'
   @usuario.save!
 
-  # Simular login armazenando o usuario_id em Thread para o controller usar
+  # Limpar qualquer usuário anterior e armazenar o novo
   Thread.current[:test_usuario_id] = @usuario.id
 end
 

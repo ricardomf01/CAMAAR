@@ -1,7 +1,7 @@
 require "csv"
 
 class ResultadosController < ApplicationController
-  before_action :require_admin_for_resultados, only: [ :index, :show, :relatorios ]
+  before_action :require_admin_for_resultados, only: [:show, :relatorios]
 
   def index
     @formularios = Formulario.all
@@ -58,7 +58,7 @@ class ResultadosController < ApplicationController
     # Security check matching Scenario 4
     unless logged_in? && current_user.perfil == "administrador"
       flash[:alert] = "Acesso negado. Apenas administradores podem gerar este relatório."
-      redirect_to root_path and return
+      redirect_to "/" and return
     end
 
     @formulario = Formulario.find(params[:id] || params[:formulario_id])
@@ -123,7 +123,7 @@ class ResultadosController < ApplicationController
   def require_admin_for_resultados
     unless logged_in? && current_user.perfil == "administrador"
       flash[:alert] = "Acesso negado: Perfil não autorizado"
-      redirect_to root_path
+      redirect_to "/" unless logged_in? && current_user&.perfil != "administrador"
     end
   end
 end
