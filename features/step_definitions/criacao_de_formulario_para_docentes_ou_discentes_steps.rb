@@ -266,4 +266,3 @@ end
 Então('exibir a mensagem de aviso {string}') do |mensagem|
   expect(page).to have_content(mensagem)
 end
-

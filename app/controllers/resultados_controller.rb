@@ -1,7 +1,7 @@
 require "csv"
 
 class ResultadosController < ApplicationController
-  before_action :require_admin_for_resultados, only: [:show, :relatorios]
+  before_action :require_admin_for_resultados, only: [ :show, :relatorios ]
 
   def index
     @formularios = Formulario.all

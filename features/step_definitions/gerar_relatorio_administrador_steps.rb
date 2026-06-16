@@ -96,7 +96,7 @@ Dado('que o formulário {string} possui respostas para as turmas {string} e {str
   template = Template.find_by(titulo: nome_formulario)
   formulario = template.formularios.first
 
-  [turma_1, turma_2].each do |turma_nome|
+  [ turma_1, turma_2 ].each do |turma_nome|
     turma = Turma.find_or_create_by!(
       disciplina: formulario.turma.disciplina,
       departamento: formulario.turma.departamento,
@@ -181,7 +181,7 @@ end
 
 Então('o arquivo CSV baixado deve conter as colunas {string}, {string}, {string} e {string}') do |coluna1, coluna2, coluna3, coluna4|
   csv_content = page.body
-  [coluna1, coluna2, coluna3, coluna4].each do |col|
+  [ coluna1, coluna2, coluna3, coluna4 ].each do |col|
     expect(csv_content).to include(col)
   end
 end
@@ -215,4 +215,3 @@ end
 Então('deve exibir a mensagem de erro {string}') do |mensagem|
   expect(page).to have_content(mensagem)
 end
-
