@@ -22,4 +22,18 @@ class ApplicationController < ActionController::Base
   def logged_in?
     current_user.present?
   end
+
+  def require_user
+    unless logged_in?
+      flash[:alert] = "Você precisa estar logado para acessar esta página."
+      redirect_to login_path
+    end
+  end
+
+  def require_admin
+    unless logged_in? && current_user.perfil == "administrador"
+      flash[:alert] = "Acesso negado. Esta área é restrita para administradores."
+      redirect_to root_path
+    end
+  end
 end

@@ -14,6 +14,26 @@ RSpec.describe Usuario, type: :model do
     end
   end
 
+  describe 'setup token' do
+    it 'generates a setup token' do
+      usuario = Usuario.create(nome: 'Test User', email: 'test@unb.br', perfil: 'discente', ativo: false, password: 'password123')
+      usuario.generate_setup_token!
+      expect(usuario.setup_token).to be_present
+      expect(usuario.setup_token_sent_at).to be_present
+      expect(usuario.setup_token_used).to be false
+    end
+  end
+
+  describe 'reset token' do
+    it 'generates a reset token' do
+      usuario = Usuario.create(nome: 'Test User', email: 'test@unb.br', perfil: 'discente', ativo: true, password: 'password123')
+      usuario.generate_reset_token!
+      expect(usuario.reset_token).to be_present
+      expect(usuario.reset_token_sent_at).to be_present
+      expect(usuario.reset_token_used).to be false
+    end
+  end
+
   # --- INÍCIO DOS TESTES DA ISSUE #106 (ESTADO RED) ---
   describe "Regras de permissão por departamento (Issue #106)" do
     describe "#pode_gerenciar_turma?" do
