@@ -43,7 +43,7 @@ RSpec.describe "Admin::ImportacoesSigaa", type: :request do
         # Simular login de usuário não admin
         user = Usuario.create!(nome: "Docente", email: "doc@unb.br", matricula: "doc", perfil: "docente", senha_hash: BCrypt::Password.create("123"), ativo: true)
         post login_path, params: { email: "doc@unb.br", password: "123" }
-        
+
         post carregar_dados_teste_path
         expect(response).to redirect_to(root_path)
         expect(flash[:alert]).to eq("Acesso negado. Esta área é restrita para administradores.")

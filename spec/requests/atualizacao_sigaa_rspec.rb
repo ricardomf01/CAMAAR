@@ -30,7 +30,7 @@ RSpec.describe "Atualização da Base via SIGAA", type: :request do
         template.save!
         form = Formulario.create!(turma: turma_existente, status: "Fechado", criado_por_id: admin.id, publico_alvo: "discente", template: template)
         resposta = Resposta.create!(usuario: aluno, formulario: form, enviado_em: Time.current)
-        
+
         ENV["SIGAA_DATA_STATUS"] = "missing_aluno"
         post sigaa_update_path
         expect(Resposta.exists?(resposta.id)).to be_truthy
