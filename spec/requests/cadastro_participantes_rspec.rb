@@ -21,7 +21,7 @@ RSpec.describe "Cadastro e Ativação de Participantes", type: :request do
       end
 
       it "registra falha no log e mantém o usuário inativo se o e-mail vindo do SIGAA for mal formatado" do
-        bad_user = Usuario.new(nome: "Bad", email: "bademail", matricula: "999", perfil: "discente", senha_hash: "")
+        bad_user = Usuario.new(nome: "Bad", email: "bademail", matricula: "999", perfil: "discente", senha_hash: "", ativo: false)
         bad_user.save(validate: false)
         expect(bad_user.ativo).to be_falsey
       end

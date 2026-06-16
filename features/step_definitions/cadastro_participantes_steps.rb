@@ -22,9 +22,9 @@ end
 
 Quando('o usuário clica no link e cadastra uma senha válida') do
   visit setup_password_path(token: @new_user.setup_token)
-  fill_in "Nova Senha", with: "senha123"
-  fill_in "Confirmar Senha", with: "senha123"
-  click_button "Salvar e Entrar"
+  fill_in "Nova senha", with: "senha123"
+  fill_in "Confirmar senha", with: "senha123"
+  click_button "Definir senha"
 end
 
 Então('o sistema deve alterar o status do usuário para ativo') do
@@ -58,7 +58,7 @@ Quando('o sistema tenta disparar os e-mails de solicitação de senha') do
 end
 
 Quando('o endereço eletrônico vindo do SIGAA está mal formatado ou não existe') do
-  @bad_user = Usuario.new(nome: "Bad", email: "bademail", matricula: "999", perfil: "discente")
+  @bad_user = Usuario.new(nome: "Bad", email: "bademail", matricula: "999", perfil: "discente", senha_hash: "", ativo: false)
   @bad_user.save(validate: false)
 end
 
@@ -81,7 +81,7 @@ Quando('ele acessa o link após o período de validade') do
 end
 
 Então('apresentar um botão para {string} sem alterar o status no banco de dados') do |botao|
-  expect(page).to have_link(botao)
+  expect(page).to have_button(botao)
   @new_user.reload
   expect(@new_user.ativo).to be_falsey
 end
