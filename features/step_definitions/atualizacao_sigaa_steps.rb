@@ -1,7 +1,4 @@
 # Contexto
-Dado('que estou autenticado no sistema com o perfil de administrador') do
-  fail "Comportamento esperado: estar logado como um usuário Administrador"
-end
 
 Dado('a base de dados do CAMAAR já possui turmas cadastradas') do
   fail "Comportamento esperado: banco de testes com turmas, disciplinas e usuários preexistentes."
