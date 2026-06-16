@@ -84,3 +84,15 @@ O projeto utiliza **RSpec** para testes de unidade/integração, **Cucumber** pa
    bin/rubocop
    ```
    *Para tentar corrigir automaticamente as infrações, utilize `bin/rubocop -a` (safe auto-correct) ou `bin/rubocop -A` (all auto-correct).*
+
+# 6. Como testar a redefinição de senha?
+
+1. Acesse a página de login (`/login`).
+2. Clique no link **"Esqueci minha senha"**.
+3. Informe o e‑mail cadastrado do usuário (ex.: admin@unb.br) e envie.
+4. O sistema enviará um e‑mail (simulado em `log/development.log`) contendo um token de redefinição.
+5. Copie o link do e‑mail e abra no navegador.
+6. Defina a nova senha e confirme.
+7. Faça login com a nova senha para validar que a troca foi bem‑sucedida.
+
+> **Dica:** Em ambiente de desenvolvimento, o e‑mail é impresso no log `log/development.log`. Use `tail -f log/development.log` para visualizá‑lo.
