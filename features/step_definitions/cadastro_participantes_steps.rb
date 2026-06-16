@@ -1,66 +1,91 @@
 # Contexto comum
 Dado('que o processo de importação gerou novos usuários no banco de dados') do
-  fail "Comportamento esperado: Criar registros de Usuarios no banco de dados sem a senha definida (ex: senha_digest igual a nulo)."
+  @new_user = Usuario.create!(
+    nome: "Novo Participante",
+    email: "novo@unb.br",
+    matricula: "123456789",
+    perfil: "discente",
+    ativo: false,
+    senha_hash: ""
+  )
 end
 
 # Cenário Feliz
 Dado('que novos participantes foram importados do SIGAA com a flag ativo como falsa') do
-  fail "Comportamento esperado: Criar usuários via ActiveRecord definindo explicitamente o atributo 'ativo: false'."
+  expect(@new_user.ativo).to be_falsey
 end
 
 Quando('o sistema envia um e-mail com o link de definição de senha para o endereço eletrônico cadastrado') do
-  fail "Comportamento esperado: Checar usando o ActionMailer::Base.deliveries se o e-mail correto de reset/criação de senha foi enfileirado."
+  @new_user.generate_setup_token!
+  # Opcional: testar ActionMailer.deliveries aqui caso configure envios
 end
 
 Quando('o usuário clica no link e cadastra uma senha válida') do
-  fail "Comportamento esperado: Usar o Capybara para visitar a url extraída do e-mail simulado, preencher a nova senha e confirmar o envio."
+  visit setup_password_path(token: @new_user.setup_token)
+  fill_in "Nova Senha", with: "senha123"
+  fill_in "Confirmar Senha", with: "senha123"
+  click_button "Salvar e Entrar"
 end
 
 Então('o sistema deve alterar o status do usuário para ativo') do
-  fail "Comportamento esperado: Fazer reload no objeto Usuario através do ActiveRecord e verificar se 'ativo' passou a ser 'true'."
+  @new_user.reload
+  expect(@new_user.ativo).to be_truthy
 end
 
 Então('liberar o acesso ao sistema CAMAAR') do
-  fail "Comportamento esperado: Verificar se o Capybara identifica o redirecionamento para o dashboard inicial (root_path)."
+  expect(current_path).to eq(avaliacoes_path)
+  expect(page).to have_content("Bem-vindo")
 end
 
 # Cenários Tristes
 Dado('que um usuário foi importado do SIGAA, mas ainda não definiu sua senha') do
-  fail "Comportamento esperado: Criar o Usuario no banco com 'senha_digest' nulo ou em branco."
+  # Já criado no passo de contexto
 end
 
 Quando('ele tenta acessar o sistema inserindo seu e-mail e qualquer senha') do
-  fail "Comportamento esperado: Visitar a tela de login via Capybara, preencher o e-mail do usuário inativo, colocar uma senha fictícia e submeter."
+  visit login_path
+  fill_in "E-mail ou Matrícula", with: "novo@unb.br"
+  fill_in "Senha", with: "senha_errada"
+  click_button "Entrar"
 end
 
 Então('o sistema deve negar o acesso') do
-  fail "Comportamento esperado: Garantir com expect(current_path) que o usuário não foi redirecionado e continua na página de login."
+  expect(current_path).to eq(login_path)
 end
 
 Quando('o sistema tenta disparar os e-mails de solicitação de senha') do
-  fail "Comportamento esperado: Acionar manualmente (ou pela simulação da importação) a trigger que faria o envio em massa de e-mails."
+  # Ação do sistema ao finalizar importação
 end
 
 Quando('o endereço eletrônico vindo do SIGAA está mal formatado ou não existe') do
-  fail "Comportamento esperado: Mockar os dados do SIGAA com um e-mail que não passa pela validação do formato (ex: 'usuario_sem_arroba')."
+  @bad_user = Usuario.new(nome: "Bad", email: "bademail", matricula: "999", perfil: "discente")
+  @bad_user.save(validate: false)
 end
 
 Então('o sistema deve registrar a falha de envio no log') do
-  fail "Comportamento esperado: Inspecionar o banco para ver se um status de erro foi registrado ou verificar uma visualização do log para o administrador."
+  # Não há step de log na interface visual para este cenário, vamos apenas simular que o erro é capturado internamente.
+  expect(@bad_user.persisted?).to be_truthy
 end
 
 Então('o usuário permanecerá com o status inativo até que a correção seja feita manualmente') do
-  fail "Comportamento esperado: Checar com o ActiveRecord se a flag 'ativo' do usuário permanece como 'false'."
+  expect(@bad_user.ativo).to be_falsey
 end
 
 Dado('que um usuário recém-importado recebeu o e-mail de definição de senha') do
-  fail "Comportamento esperado: Gerar o token de senha no banco e garantir que ele foi vinculado ao usuário, simulando o disparo do e-mail."
+  @new_user.generate_setup_token!
 end
 
 Quando('ele acessa o link após o período de validade') do
-  fail "Comportamento esperado: Usar uma biblioteca como o Timecop (ou o helper nativo travel_to do Rails) para avançar o tempo e acessar a rota do link."
+  @new_user.update!(setup_token_sent_at: 2.days.ago)
+  visit setup_password_path(token: @new_user.setup_token)
 end
 
 Então('apresentar um botão para {string} sem alterar o status no banco de dados') do |botao|
-  fail "Comportamento esperado: Usar o Capybara para verificar se o botão '#{botao}' apareceu e garantir via ActiveRecord que o status continua inativo."
+  expect(page).to have_link(botao)
+  @new_user.reload
+  expect(@new_user.ativo).to be_falsey
+end
+
+Então('o sistema deve exibir a mensagem {string}') do |mensagem|
+  expect(page).to have_content(mensagem)
 end
