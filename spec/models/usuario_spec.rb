@@ -37,12 +37,25 @@ RSpec.describe Usuario, type: :model do
   # --- INÍCIO DOS TESTES DA ISSUE #106 (ESTADO RED) ---
   describe "Regras de permissão por departamento (Issue #106)" do
     describe "#pode_gerenciar_turma?" do
+      let(:departamento_cic) { Departamento.create!(nome: "Ciência da Computação") }
+      let(:departamento_mat) { Departamento.create!(nome: "Matemática") }
+      let(:disciplina_cic) { Disciplina.create!(nome: "Engenharia de Software", codigo: "CIC001") }
+      let(:disciplina_mat) { Disciplina.create!(nome: "Cálculo 1", codigo: "MAT001") }
+      let(:turma_cic) { Turma.create!(disciplina: disciplina_cic, departamento: departamento_cic, codigo_turma: "CIC001A", semestre: "2026.1") }
+      let(:turma_mat) { Turma.create!(disciplina: disciplina_mat, departamento: departamento_mat, codigo_turma: "MAT001A", semestre: "2026.1") }
+      let(:admin) do
+        usuario = Usuario.new(nome: 'Admin', email: 'admin@unb.br', perfil: 'administrador', departamento: departamento_cic)
+        usuario.password = '123456'
+        usuario.save!
+        usuario
+      end
+
       it "retorna verdadeiro se a turma pertencer ao mesmo departamento do administrador" do
-        fail "Pendente: Implementar método no model Usuario para validar permissão de turma"
+        expect(admin.pode_gerenciar_turma?(turma_cic)).to be true
       end
 
       it "retorna falso se a turma pertencer a um departamento diferente" do
-        fail "Pendente: Garantir que a validação falhe para turmas de outros departamentos"
+        expect(admin.pode_gerenciar_turma?(turma_mat)).to be false
       end
     end
   end
