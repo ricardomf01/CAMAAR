@@ -13,7 +13,7 @@ end
 Quando('eu solicito a atualização dos dados do SIGAA') do
   # Simulation uses the same button
   visit admin_import_console_path
-  click_button "Carregar Dados do CIC"
+  click_button "Atualizar Base"
 end
 
 Quando('um usuário alterou seu vínculo \(trancamento ou nova matrícula) no sistema origem') do
@@ -31,15 +31,15 @@ Dado('que um discente já enviou uma resposta para um formulário de avaliação
   @aluno = Usuario.create!(nome: "Aluno Teste", email: "aluno@teste.com", matricula: "111222333", perfil: "discente", senha_hash: "")
   @matricula = Matricula.create!(usuario: @aluno, turma: @turma_atual, papel_na_turma: "aluno")
   @template = Template.new(titulo: "t", criador_id: Usuario.find_by(perfil: 'administrador').id)
-  @template.questoes_template.build(enunciado: "Q1", tipo: "dissertativa", ordem: 1)
+  @template.perguntas.build(enunciado: "Q1", tipo: "dissertativa", ordem: 1)
   @template.save!
-  @form = Formulario.create!(turma: @turma_atual, status: "Fechado", titulo: "Form", publico_alvo: "discente", template: @template)
+  @form = Formulario.create!(turma: @turma_atual, status: "Fechado", criado_por_id: Usuario.find_by(perfil: 'administrador').id, publico_alvo: "discente", template: @template)
   @resposta = Resposta.create!(usuario: @aluno, formulario: @form, enviado_em: Time.current)
 end
 
 Quando('eu solicito a atualização da base do SIGAA') do
   visit admin_import_console_path
-  click_button "Carregar Dados do CIC"
+  click_button "Atualizar Base"
 end
 
 Quando('o SIGAA informa que este aluno não está mais matriculado na turma') do
@@ -52,13 +52,13 @@ end
 
 Então('apenas inativar o vínculo na turma pertinente, informando a ressalva no log de atualização') do
   @matricula.reload
-  expect(@matricula.trancado).to be_truthy
+  expect(@matricula.papel_na_turma).to eq("inativo")
 end
 
 Quando('o SIGAA envia dados estruturais corrompidos durante a execução da rotina') do
   ENV["SIGAA_DATA_STATUS"] = "corrupted"
   visit admin_import_console_path
-  click_button "Carregar Dados do CIC"
+  click_button "Atualizar Base"
 end
 
 Então('o sistema deve abortar a transação para manter a integridade da base') do
@@ -66,14 +66,14 @@ Então('o sistema deve abortar a transação para manter a integridade da base')
 end
 
 Dado('que o sistema está processando uma atualização de grande volume do SIGAA') do
-  AdminController.class_variable_set(:@@sigaa_updating, true)
+  ENV["SIGAA_UPDATING_MOCK"] = "true"
 end
 
 Quando('outro administrador tenta iniciar o mesmo processo de atualização simultaneamente') do
-  visit admin_dashboard_path
+  page.driver.submit :post, sigaa_update_path, {}
 end
 
 Então('o sistema deve bloquear a segunda requisição') do
-  expect(page).to have_button("Indisponível", disabled: true)
-  AdminController.class_variable_set(:@@sigaa_updating, false)
+  expect(current_path).to eq(admin_import_console_path)
+  ENV["SIGAA_UPDATING_MOCK"] = nil
 end

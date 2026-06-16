@@ -11,16 +11,16 @@ Funcionalidade: Atualização da base de dados existente via SIGAA
 
   @cenario_feliz
   Cenário: Sincronização de alterações nas matrículas
-    Quando eu solicito a atualização dos dados do SIGAA
-    E um usuário alterou seu vínculo (trancamento ou nova matrícula) no sistema origem
+    Quando um usuário alterou seu vínculo (trancamento ou nova matrícula) no sistema origem
+    E eu solicito a atualização dos dados do SIGAA
     Então o sistema deve atualizar a tabela de matrículas correspondente para refletir o status atual
     E exibir a mensagem "Base de dados atualizada com sucesso"
 
   @cenario_triste
   Cenário: Conflito de atualização em formulário já respondido
     Dado que um discente já enviou uma resposta para um formulário de avaliação
-    Quando eu solicito a atualização da base do SIGAA
-    E o SIGAA informa que este aluno não está mais matriculado na turma
+    Quando o SIGAA informa que este aluno não está mais matriculado na turma
+    E eu solicito a atualização da base do SIGAA
     Então o sistema deve manter o registro histórico da resposta intacto por segurança
     E apenas inativar o vínculo na turma pertinente, informando a ressalva no log de atualização
 

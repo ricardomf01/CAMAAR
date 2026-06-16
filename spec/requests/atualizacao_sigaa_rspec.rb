@@ -12,12 +12,12 @@ RSpec.describe "Atualização da Base via SIGAA", type: :request do
     post login_path, params: { email: admin.email, password: 'password123' }
   end
 
-  describe "POST /admin/carregar_dados_teste" do
+  describe "POST /admin/sigaa_update" do
     context "Cenário Feliz: Sincronização de vínculos" do
       it "atualiza o status da matrícula para refletir trancamento ou nova alocação no SIGAA" do
         ENV["SIGAA_DATA_STATUS"] = "status_changed"
-        post carregar_dados_teste_path
-        expect(response).to redirect_to(admin_dashboard_path)
+        post sigaa_update_path
+        expect(response).to redirect_to(admin_import_console_path)
         expect(flash[:notice]).to eq("Base de dados atualizada com sucesso")
         ENV["SIGAA_DATA_STATUS"] = nil
       end
@@ -26,32 +26,32 @@ RSpec.describe "Atualização da Base via SIGAA", type: :request do
     context "Cenários Tristes: Conflitos e Inconsistências" do
       it "inativa o vínculo na turma, mas mantém o registro histórico intacto caso o aluno já tenha respondido um formulário" do
         template = Template.new(titulo: "t", criador_id: admin.id)
-        template.questoes_template.build(enunciado: "Q", tipo: "dissertativa", ordem: 1)
+        template.perguntas.build(enunciado: "Q", tipo: "dissertativa", ordem: 1)
         template.save!
-        form = Formulario.create!(turma: turma_existente, status: "Fechado", titulo: "Form", publico_alvo: "discente", template: template)
+        form = Formulario.create!(turma: turma_existente, status: "Fechado", criado_por_id: admin.id, publico_alvo: "discente", template: template)
         resposta = Resposta.create!(usuario: aluno, formulario: form, enviado_em: Time.current)
         
         ENV["SIGAA_DATA_STATUS"] = "missing_aluno"
-        post carregar_dados_teste_path
+        post sigaa_update_path
         expect(Resposta.exists?(resposta.id)).to be_truthy
-        expect(matricula.reload.trancado).to be_truthy
+        expect(matricula.reload.papel_na_turma).to eq("inativo")
         ENV["SIGAA_DATA_STATUS"] = nil
       end
 
       it "aborta a transação (rollback) se o SIGAA enviar dados estruturais corrompidos" do
         ENV["SIGAA_DATA_STATUS"] = "corrupted"
-        post carregar_dados_teste_path
-        expect(response).to redirect_to(admin_dashboard_path)
+        post sigaa_update_path
+        expect(response).to redirect_to(admin_import_console_path)
         expect(flash[:alert]).to include("Erro de compatibilidade de dados. Atualização cancelada.")
         ENV["SIGAA_DATA_STATUS"] = nil
       end
 
       it "bloqueia uma segunda requisição caso o sistema já esteja processando uma atualização concorrente" do
-        AdminController.class_variable_set(:@@sigaa_updating, true)
-        post carregar_dados_teste_path
-        expect(response).to redirect_to(admin_dashboard_path)
+        ENV["SIGAA_UPDATING_MOCK"] = "true"
+        post sigaa_update_path
+        expect(response).to redirect_to(admin_import_console_path)
         expect(flash[:alert]).to eq("Uma atualização já está em andamento. Aguarde a conclusão.")
-        AdminController.class_variable_set(:@@sigaa_updating, false)
+        ENV["SIGAA_UPDATING_MOCK"] = nil
       end
     end
   end

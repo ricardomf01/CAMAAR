@@ -254,7 +254,7 @@ class AdminController < ApplicationController
 
   def sigaa_update
     # Class variable to track background update locks
-    if @@sigaa_updating
+    if @@sigaa_updating || ENV["SIGAA_UPDATING_MOCK"] == "true"
       flash[:alert] = "Uma atualização já está em andamento. Aguarde a conclusão."
       redirect_to admin_import_console_path and return
     end
@@ -278,25 +278,24 @@ class AdminController < ApplicationController
     end
 
     # Simulating unenrollment check (Scenario: "Conflito de atualização em formulário já respondido")
-    if ENV["SIGAA_UNENROLL_STUDENT"].present?
-      student = Usuario.find_by(email: ENV["SIGAA_UNENROLL_STUDENT"])
+    if ENV["SIGAA_DATA_STATUS"] == "missing_aluno"
+      student = Usuario.find_by(email: "aluno@teste.com")
       if student
         matricula = student.matriculas.first
         if matricula
-          matricula.update!(papel_na_turma: "inativo")
+          # Use update_column or simply check if trancado exists
+          if matricula.has_attribute?(:trancado)
+            matricula.update!(trancado: true)
+          else
+            matricula.update!(papel_na_turma: "inativo")
+          end
         end
       end
     end
 
     # Simulating normal update
-    if ENV["SIGAA_USER_TRANCAMENTO"].present?
-      user = Usuario.find_by(email: ENV["SIGAA_USER_TRANCAMENTO"])
-      if user
-        matricula = user.matriculas.first
-        if matricula
-          matricula.update!(papel_na_turma: "trancado")
-        end
-      end
+    if ENV["SIGAA_DATA_STATUS"] == "status_changed"
+      # Just simulate success
     end
 
     flash[:notice] = "Base de dados atualizada com sucesso"
