@@ -44,6 +44,7 @@ Quando('eu solicito a importação de dados do SIGAA') do
 end
 
 Quando('o pacote de dados recebido não contém o {string} de algumas disciplinas') do |campo|
+  ENV["SIGAA_API_STATUS"] = nil
   ENV["SIGAA_DATA_STATUS"] = "missing_codes"
   click_button "Carregar Dados do CIC"
 end
@@ -62,6 +63,7 @@ Quando('eu inicio o processo de importação') do
 end
 
 Quando('o servidor do SIGAA está temporariamente indisponível') do
+  ENV["SIGAA_DATA_STATUS"] = nil
   ENV["SIGAA_API_STATUS"] = "offline"
   click_button "Carregar Dados do CIC"
 end
@@ -71,6 +73,7 @@ Então('o sistema deve cancelar a operação') do
 end
 
 Quando('eu solicito a importação de dados para um semestre futuro que ainda não foi cadastrado no SIGAA') do
+  ENV["SIGAA_API_STATUS"] = nil
   ENV["SIGAA_DATA_STATUS"] = "empty"
   click_button "Carregar Dados do CIC"
 end
