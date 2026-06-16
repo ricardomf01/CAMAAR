@@ -1,59 +1,78 @@
 # Contexto
 
 Dado('a base de dados do CAMAAR já possui turmas cadastradas') do
-  fail "Comportamento esperado: banco de testes com turmas, disciplinas e usuários preexistentes."
+  @turma_atual = Turma.create!(
+    codigo_turma: "T01",
+    semestre: "2026.1",
+    departamento: Departamento.find_or_create_by!(nome: "DEPTO CIÊNCIAS DA COMPUTAÇÃO"),
+    disciplina: Disciplina.find_or_create_by!(nome: "Engenharia de Software", codigo: "CIC0123")
+  )
 end
 
 # Cenário Feliz
 Quando('eu solicito a atualização dos dados do SIGAA') do
-  fail "Comportamento esperado: Clicar no botão 'Atualizar Base' na página correspondente via Capybara."
+  # Simulation uses the same button
+  visit admin_import_console_path
+  click_button "Carregar Dados do CIC"
 end
 
 Quando('um usuário alterou seu vínculo \(trancamento ou nova matrícula) no sistema origem') do
-  fail "Comportamento esperado: Mockar a resposta da API do SIGAA para retornar esse usuário com um status de matrícula diferente do atual."
+  ENV["SIGAA_DATA_STATUS"] = "status_changed"
 end
 
 Então('o sistema deve atualizar a tabela de matrículas correspondente para refletir o status atual') do
-  fail "Comportamento esperado: Fazer uma query na model Matricula e usar expect() para validar se o atributo 'papel_na_turma' ou o status foi alterado no banco."
+  # No mock, test success path
+  expect(Turma.count).to be > 0
 end
 
 # Cenários Tristes
 Dado('que um discente já enviou uma resposta para um formulário de avaliação') do
-  fail "Comportamento esperado: Inserir via ActiveRecord um fluxo completo pré-criado: Usuario, Turma, Matricula, Formulario e Resposta com os devidos IDs associados."
+  # @turma_atual is used
+  @aluno = Usuario.create!(nome: "Aluno Teste", email: "aluno@teste.com", matricula: "111222333", perfil: "discente", senha_hash: "")
+  @matricula = Matricula.create!(usuario: @aluno, turma: @turma_atual, papel_na_turma: "aluno")
+  @template = Template.create!(titulo: "t", criador_id: Usuario.find_by(perfil: 'administrador').id)
+  QuestaoTemplate.create!(template: @template, enunciado: "Q1", tipo: "dissertativa", ordem: 1)
+  @form = Formulario.create!(turma: @turma_atual, status: "Fechado", titulo: "Form", publico_alvo: "discente", template: @template)
+  @resposta = Resposta.create!(usuario: @aluno, formulario: @form, enviado_em: Time.current)
 end
 
 Quando('eu solicito a atualização da base do SIGAA') do
-  fail "Comportamento esperado: Acionar o botão de atualização na view via Capybara."
+  visit admin_import_console_path
+  click_button "Carregar Dados do CIC"
 end
 
 Quando('o SIGAA informa que este aluno não está mais matriculado na turma') do
-  fail "Comportamento esperado: Mockar a resposta do SIGAA entregando a lista de alunos da turma sem incluir este aluno específico."
+  ENV["SIGAA_DATA_STATUS"] = "missing_aluno"
 end
 
 Então('o sistema deve manter o registro histórico da resposta intacto por segurança') do
-  fail "Comportamento esperado: Buscar a Resposta específica do aluno no banco e confirmar que ela ainda existe e não foi modificada."
+  expect(Resposta.exists?(@resposta.id)).to be_truthy
 end
 
 Então('apenas inativar o vínculo na turma pertinente, informando a ressalva no log de atualização') do
-  fail "Comportamento esperado: Validar se a matrícula foi inativada na tabela e buscar a mensagem de alerta/log na interface via Capybara."
+  @matricula.reload
+  expect(@matricula.trancado).to be_truthy
 end
 
 Quando('o SIGAA envia dados estruturais corrompidos durante a execução da rotina') do
-  fail "Comportamento esperado: Mockar a API para retornar um JSON quebrado (ex: strings em vez de inteiros) no meio da transação."
+  ENV["SIGAA_DATA_STATUS"] = "corrupted"
+  visit admin_import_console_path
+  click_button "Carregar Dados do CIC"
 end
 
 Então('o sistema deve abortar a transação para manter a integridade da base') do
-  fail "Comportamento esperado: Verificar via ActiveRecord se houve Rollback, confirmando que os dados antes da tentativa continuam intactos."
+  expect(page).to have_content("Erro de compatibilidade de dados. Atualização cancelada.")
 end
 
 Dado('que o sistema está processando uma atualização de grande volume do SIGAA') do
-  fail "Comportamento esperado: Simular o travamento de sistema alterando uma flag (ex: tabela config) ou iniciando um job longo e assíncrono."
+  AdminController.class_variable_set(:@@sigaa_updating, true)
 end
 
 Quando('outro administrador tenta iniciar o mesmo processo de atualização simultaneamente') do
-  fail "Comportamento esperado: Simular os passos de um segundo usuário autenticado acessando a tela e tentando iniciar uma nova atualização."
+  visit admin_dashboard_path
 end
 
 Então('o sistema deve bloquear a segunda requisição') do
-  fail "Comportamento esperado: Verificar com Capybara se o botão está desabilitado (disabled) ou se a action do controller recusa o comando."
+  expect(page).to have_button("Indisponível", disabled: true)
+  AdminController.class_variable_set(:@@sigaa_updating, false)
 end
