@@ -1,29 +1,54 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Camaar" %></title>
+    <title>CAMAAR - Sistema de Avaliação do Colegiado (CIC/UnB)</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Camaar">
-    <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
-    <%= yield :head %>
+    <!-- Google Fonts Imports para Fontes do CAMAAR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+    <!-- CSS do Tailwind via CDN de alta performance -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <!-- CSS Base do Rails -->
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+      }
+    </style>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="bg-[#e2e2e2] text-gray-800 antialiased select-none overflow-x-clip min-h-screen flex flex-col">
+    <% if current_user.present? %>
+      <!-- Header Superior Fixo -->
+      <%= render "shared/header" %>
+
+      <div class="flex flex-1 relative">
+        <!-- Sidebar Esquerdo Fixo Estilo CAMAAR -->
+        <%= render "shared/sidebar" %>
+
+        <!-- Container do Conteúdo com offset correspondente ao sidebar fixed -->
+        <div id="main-content-wrapper" class="flex-1 flex flex-col min-h-[calc(100vh-64px)] pl-64 transition-all duration-350">
+          <main class="flex-1 bg-[#e2e2e2] px-4 md:px-8 py-6 max-w-7xl mx-auto w-full">
+            <%= yield %>
+          </main>
+        </div>
+      </div>
+    <% else %>
+      <!-- Sem usuário logado, renderizar diretamente a tela de login -->
+      <main class="min-h-screen bg-[#6c245f] flex items-center justify-center p-4">
+        <%= yield %>
+      </main>
+    <% end %>
   </body>
 </html>

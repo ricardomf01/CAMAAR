@@ -17,7 +17,7 @@ Funcionalidade: Sistema de Login
     Quando preencho "E-mail ou Matrícula" com "<credencial>"
     E preencho "Senha" com "<senha>"
     E clico em "Entrar"
-    Então devo ser redirecionado para a página inicial
+    Então devo ser redirecionado para a minha página inicial
     E devo ver o menu de navegação
 
     Exemplos:
@@ -31,7 +31,7 @@ Funcionalidade: Sistema de Login
     Quando preencho "E-mail ou Matrícula" com "admin@unb.br"
     E preencho "Senha" com "admin123"
     E clico em "Entrar"
-    Então devo ser redirecionado para a página inicial
+    Então devo ser redirecionado para a minha página inicial
     E devo ver o menu de navegação
     E devo ver a opção de gerenciamento no menu lateral
 
