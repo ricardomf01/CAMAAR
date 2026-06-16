@@ -3,7 +3,7 @@ class Disciplina < ApplicationRecord
 
   has_many :turmas, dependent: :destroy
 
-  validates :codigo, presence: true
+  validates :codigo, presence: true, uniqueness: true
   validates :nome, presence: true
 
   def departamento

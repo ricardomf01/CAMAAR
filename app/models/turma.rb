@@ -8,7 +8,7 @@ class Turma < ApplicationRecord
   has_many :usuarios, through: :matriculas
   has_many :formularios, dependent: :destroy
 
-  validates :codigo_turma, presence: true
+  validates :codigo_turma, presence: true, uniqueness: { scope: :semestre }
   validates :semestre, presence: true
   def codigo
     disciplina&.codigo

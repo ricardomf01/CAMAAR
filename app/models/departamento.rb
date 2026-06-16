@@ -4,7 +4,7 @@ class Departamento < ApplicationRecord
   has_many :usuarios, dependent: :destroy
   has_many :turmas, dependent: :destroy
 
-  validates :nome, presence: true
+  validates :nome, presence: true, uniqueness: true
 
   def codigo
     return "CIC" if nome.to_s.upcase.include?("COMPUTAÇÃO")
