@@ -30,5 +30,5 @@ Rails.application.routes.draw do
   get "resultados/:id/export_csv" => "resultados#export_csv_resultado", as: :export_csv_resultado
 
   # Defines the root path route ("/")
-  # root "posts#index"
+  root "resultados#index"
 end

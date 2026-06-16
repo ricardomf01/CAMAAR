@@ -54,7 +54,7 @@ class ResultadosController < ApplicationController
     @formularios = Formulario.all
   end
 
-  def export_clsv_resultado
+  def export_csv_resultado
     # Security check matching Scenario 4
     unless logged_in? && current_user.perfil == "administrador"
       flash[:alert] = "Acesso negado. Apenas administradores podem gerar este relatório."
@@ -83,11 +83,12 @@ class ResultadosController < ApplicationController
 
       formularios.each do |form|
         form.respostas.each do |resp|
-          # We can output a row per response containing a consolidated string of all answers,
-          # or a row per individual item. To be safe, let's output a row per question answer,
-          # or let's combine all answers into a single column.
-          # The scenario says: "arquivo CSV baixado deve conter as colunas 'Matrícula', 'Turma', 'Disciplina' e 'Respostas'"
-          # If we do one row per answer item, it satisfies the columns:
+          # Se há filtro de turma, verificar se a resposta é da turma selecionada
+          if params[:turma_id].present?
+            usuario_turmas = resp.usuario.matriculas.pluck(:turma_id)
+            next unless usuario_turmas.include?(params[:turma_id].to_i)
+          end
+
           resp.resposta_itens.each do |item|
             valor_resposta = if item.questao_template.tipo == "likert"
                                item.valor_numerico.to_s
@@ -95,10 +96,13 @@ class ResultadosController < ApplicationController
                                item.valor_texto
             end
 
+            # Get the turma the student was enrolled in for this response
+            aluno_turma = resp.usuario.matriculas.find_by(turma_id: form.turma_id)&.turma || form.turma
+
             csv << [
               resp.usuario.matricula || "Anônimo",
-              form.turma.codigo_turma,
-              form.turma.disciplina.nome,
+              aluno_turma.codigo_turma,
+              aluno_turma.disciplina.nome,
               valor_resposta
             ]
           end
@@ -110,6 +114,7 @@ class ResultadosController < ApplicationController
     safe_name = template.titulo.downcase.gsub(/[^a-z0-9]/, "_").squeeze("_")
     filename = "resultados_#{safe_name}.csv"
 
+    flash[:notice] = "Relatório gerado com sucesso."
     send_data csv_data, filename: filename, type: "text/csv; charset=utf-8"
   end
 

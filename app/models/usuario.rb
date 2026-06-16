@@ -27,6 +27,10 @@ class Usuario < ApplicationRecord
 
   validate :password_security_rules, if: :validating_password_rules
 
+  def pode_gerenciar_turma?(turma)
+    departamento_id == turma.departamento_id
+  end
+
   # Helpers to generate tokens
   def generate_setup_token!
     self.setup_token = SecureRandom.hex(20)

@@ -4,7 +4,7 @@
 <div class="space-y-6">
   
   <div class="flex items-center gap-3">
-    <%= link_to admin_dashboard_path, class: "p-2 bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 rounded-xl shadow-sm transition" do %>
+    <%= link_to root_path, class: "p-2 bg-white hover:bg-gray-100 border border-gray-200 text-gray-700 rounded-xl shadow-sm transition" do %>
       <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
       </svg>
@@ -56,7 +56,7 @@
               <select name="turma_id" id="turma_id_<%= formulario.id %>" class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:border-[#702562] text-gray-700">
                 <option value="">Todas as turmas</option>
                 <% formulario.template.formularios.map(&:turma).uniq.each do |t| %>
-                  <option value="<%= t.id %>"><%= t.nome %></option>
+                  <option value="<%= t.id %>"><%= t.codigo_turma %></option>
                 <% end %>
               </select>
             </div>
