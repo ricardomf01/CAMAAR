@@ -45,8 +45,9 @@ class PasswordsController < ApplicationController
       @user.setup_token_used = true
       @user.ativo = true
       @user.save!
-      flash[:notice] = "Senha definida com sucesso. Faça login para continuar"
-      redirect_to login_path
+      session[:usuario_id] = @user.id
+      flash[:notice] = "Senha definida com sucesso. Bem-vindo!"
+      redirect_to avaliacoes_path
     else
       flash.now[:alert] = @user.errors[:password].first
       render :setup, status: :unprocessable_entity

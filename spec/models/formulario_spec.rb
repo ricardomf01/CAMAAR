@@ -10,7 +10,7 @@ RSpec.describe Formulario, type: :model do
       usuario.save!
       usuario
     end
-    let(:template) { Template.create!(titulo: "Template Padrão", ativo: true, criador_id: admin.id) }
+    let(:template) { Template.create!(titulo: "Template Padrão", ativo: true, criador_id: admin.id, skip_questions_validation: true) }
     let(:turma) do
       Turma.create!(
         codigo_turma: "ENS101-2024",

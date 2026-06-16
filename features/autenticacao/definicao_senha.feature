@@ -16,8 +16,8 @@ Funcionalidade: Sistema de definição de senha
     E preencho "Nova senha" com "senha123"
     E preencho "Confirmar senha" com "senha123"
     E clico em "Definir senha"
-    Então devo ser redirecionado para a página de login
-    E devo ver a mensagem "Senha definida com sucesso. Faça login para continuar"
+    Então devo ser redirecionado para a minha página inicial
+    E devo ver a mensagem "Senha definida com sucesso. Bem-vindo!"
 
   @cenario_triste
   Esquema do Cenário: Validações de senha com token válido

@@ -38,23 +38,41 @@ RSpec.describe "Admins", type: :request do
 
   # --- INÍCIO DOS TESTES DA ISSUE #106 (ESTADO RED) ---
   describe "Sistema de gerenciamento por departamento (Issue #106)" do
+    let(:departamento_admin) { Departamento.create!(nome: "Dep Admin") }
+    let(:departamento_outro) { Departamento.create!(nome: "Outro Dep") }
+    let(:disciplina) { Disciplina.create!(nome: "Disc", codigo: "D1") }
+
+    before do
+      admin_user.update!(departamento: departamento_admin)
+    end
+
     context "Visualização de turmas" do
       it "lista apenas as turmas pertencentes ao departamento do administrador" do
-        fail "Pendente: Implementar o filtro de turmas pelo departamento do Admin na listagem"
+        turma_admin = Turma.create!(codigo_turma: "T1", semestre: "2024.1", departamento: departamento_admin, disciplina: disciplina)
+        turma_outra = Turma.create!(codigo_turma: "T2", semestre: "2024.1", departamento: departamento_outro, disciplina: disciplina)
+
+        get admin_turmas_path
+
+        expect(response.body).to include("T1")
+        expect(response.body).not_to include("T2")
       end
 
       it "exibe uma lista vazia e uma mensagem de aviso caso o departamento não tenha turmas" do
-        fail "Pendente: Tratar fluxo alternativo quando não há turmas no departamento"
+        get admin_turmas_path
+
+        expect(response.body).to include("Nenhuma turma encontrada para o seu departamento neste semestre")
       end
     end
 
     context "Segurança e Isolamento" do
-      it "bloqueia o acesso direto à URL de uma turma de outro departamento" do
-        fail "Pendente: Implementar o bloqueio de rota (before_action) para departamentos cruzados"
-      end
+      it "bloqueia o acesso direto à URL de uma turma de outro departamento e redireciona com erro" do
+        turma_outra = Turma.create!(codigo_turma: "T2", semestre: "2024.1", departamento: departamento_outro, disciplina: disciplina)
 
-      it "redireciona para o painel principal exibindo erro de permissão" do
-        fail "Pendente: Implementar o redirecionamento seguro com mensagem de erro"
+        get admin_turma_avaliacoes_path(turma_outra)
+
+        expect(response).to redirect_to(admin_turmas_path)
+        follow_redirect!
+        expect(response.body).to include("Acesso negado: Você tem permissão para gerenciar apenas as turmas vinculadas ao seu departamento.")
       end
     end
   end
