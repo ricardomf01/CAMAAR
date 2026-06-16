@@ -28,9 +28,10 @@ Dado('existe um usuário {string} autenticado com perfil de {string}') do |nome_
   end
 
   visit '/login'
-  fill_in 'Email', with: @usuario.email
-  fill_in 'Senha', with: 'password'
+  fill_in 'email', with: @usuario.email
+  fill_in 'password', with: 'password'
   click_button 'Entrar'
+  Thread.current[:test_usuario_id] = @usuario.id
 end
 
 Dado('o usuário {string} está vinculado institucionalmente ao departamento {string}') do |nome_usuario, nome_departamento|
@@ -41,12 +42,13 @@ Dado('o usuário {string} está vinculado institucionalmente ao departamento {st
 end
 
 Dado('que o {string} acessa o painel de gerenciamento de turmas do semestre atual') do |nome_usuario|
-  visit turmas_path
+  visit admin_turmas_path
 end
 
 Dado('a sincronização com o SIGAA não retornou nenhuma turma ativa para o departamento {string} no semestre {string}') do |nome_dept, semestre|
   departamento = Departamento.find_by(nome: nome_dept)
   Turma.where(departamento: departamento, semestre: semestre).destroy_all if departamento
+  visit current_path
 end
 
 Dado('que a turma de {string} pertence ao departamento {string} e possui o ID de sistema {string}') do |nome_disciplina, nome_dept, id_sistema|
@@ -57,11 +59,15 @@ Dado('que a turma de {string} pertence ao departamento {string} e possui o ID de
     d.codigo = "COD-#{id_sistema}"
   end
 
-  Turma.find_or_create_by!(id: id_sistema, codigo_turma: "T-#{id_sistema}", departamento: departamento, disciplina: disciplina)
+  Turma.find_or_create_by!(id: id_sistema, codigo_turma: "T-#{id_sistema}", departamento: departamento, disciplina: disciplina, semestre: "2026.1")
 end
 
 Dado('que o {string} acessa a página de {string}') do |nome_usuario, nome_pagina|
-  visit relatorios_path
+  if nome_pagina == "Desempenho Semestral"
+    visit admin_turmas_path
+  else
+    visit admin_relatorios_path
+  end
 end
 
 
@@ -115,7 +121,7 @@ Então('o sistema deve interceptar a requisição e bloquear o acesso') do
 end
 
 Então('deve redirecionar o usuário para o painel principal do seu departamento') do
-  expect(current_path).to eq(root_path)
+  expect(current_path).to eq(admin_turmas_path)
 end
 
 Então('exibir a mensagem de erro {string}') do |mensagem|
