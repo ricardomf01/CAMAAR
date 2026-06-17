@@ -94,6 +94,11 @@ class PasswordsController < ApplicationController
       flash.now[:alert] = "Este link já foi utilizado. Solicite uma nova redefinição de senha"
       render :setup_error and return
     end
+
+    if @user.reset_token_sent_at.nil? || @user.reset_token_sent_at < 24.hours.ago
+      flash.now[:alert] = "Link expirado. Solicite uma nova redefinição de senha"
+      render :setup_error and return
+    end
   end
 
   def reset_update

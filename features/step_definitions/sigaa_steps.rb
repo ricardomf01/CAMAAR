@@ -33,7 +33,7 @@ Dado('que um discente já enviou uma resposta para um formulário de avaliação
   @template = Template.new(titulo: "t", criador_id: Usuario.find_by(perfil: 'administrador').id)
   @template.perguntas.build(enunciado: "Q1", tipo: "dissertativa", ordem: 1)
   @template.save!
-  @form = Formulario.create!(turma: @turma_atual, status: "Fechado", criado_por_id: Usuario.find_by(perfil: 'administrador').id, publico_alvo: "discente", template: @template)
+  @form = Formulario.create!(turma: @turma_atual, status: "Fechado", criado_por_id: Usuario.find_by(perfil: 'administrador').id, publico_alvo: "discente", template: @template, data_inicio: Date.today, data_limite: Date.today + 1.day)
   @resposta = Resposta.create!(usuario: @aluno, formulario: @form, enviado_em: Time.current)
 end
 

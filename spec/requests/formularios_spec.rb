@@ -57,5 +57,25 @@ RSpec.describe "Formularios e Avaliações", type: :request do
         expect(response.body).not_to include("Disc") # Formulário invisível
       end
     end
+
+    context "Cenário de Erro: Envio de datas em branco" do
+      it "não permite a criação do formulário se as datas de início e limite estiverem vazias" do
+        post login_path, params: { email: admin.email, password: "123" }
+        
+        post formularios_path, params: {
+          turma_id: turma.id,
+          formulario: {
+            template_id: template.id,
+            publico_alvo: "discente",
+            data_inicio: "",
+            data_limite: ""
+          }
+        }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.body).to include("Datas de início e limite são obrigatórias")
+        expect(Formulario.count).to eq(0)
+      end
+    end
   end
 end

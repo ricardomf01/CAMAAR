@@ -68,6 +68,8 @@ class FormulariosController < ApplicationController
           alert_msg = "Ação inválida: Esta turma ainda não possui discentes vinculados no SIGAA para responderem à avaliação."
         elsif @formulario.errors.full_messages.any? { |m| m.include?("Já existe um formulário ativo") }
           alert_msg = "Atenção: Já existe um formulário ativo para os discentes desta turma. Encerre o atual antes de publicar um novo."
+        elsif @formulario.errors[:data_inicio].any? || @formulario.errors[:data_limite].any?
+          alert_msg = "Datas de início e limite são obrigatórias"
         end
 
         flash.now[:alert] = alert_msg

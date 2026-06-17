@@ -53,6 +53,14 @@ RSpec.describe "Atualização da Base via SIGAA", type: :request do
         expect(flash[:alert]).to eq("Uma atualização já está em andamento. Aguarde a conclusão.")
         ENV["SIGAA_UPDATING_MOCK"] = nil
       end
+
+      it "libera a trava infinita quando chamado com ?release_lock=true" do
+        ENV["SIGAA_UPDATING_MOCK"] = "true"
+        post sigaa_update_path(release_lock: "true")
+        expect(response).to redirect_to(admin_import_console_path)
+        expect(flash[:notice]).to eq("Trava liberada com sucesso.")
+        ENV["SIGAA_UPDATING_MOCK"] = nil
+      end
     end
   end
 end

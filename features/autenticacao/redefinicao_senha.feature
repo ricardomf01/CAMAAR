@@ -109,9 +109,6 @@ Funcionalidade: Redefinição de senha
     Dado que o usuário "usuario@unb.br" solicitou redefinição de senha
     E que possuo um token de redefinição de senha expirado
     Quando acesso a página de redefinição de senha
-    E preencho "Nova senha" com "novasenha123"
-    E preencho "Confirmar nova senha" com "novasenha123"
-    E clico em "Redefinir senha"
     Então devo ver a mensagem "Link expirado. Solicite uma nova redefinição de senha"
 
   @cenario_triste
