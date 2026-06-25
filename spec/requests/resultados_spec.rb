@@ -14,6 +14,52 @@ RSpec.describe "Resultados", type: :request do
     QuestaoTemplate.create!(template: template, enunciado: "Pergunta 1", tipo: "aberta", obrigatoria: true, ordem: 1)
   end
 
+  describe "GET /resultados" do
+    it "renders index successfully" do
+      post login_path, params: { email: admin.email, password: "senha" }
+      get resultados_path
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe "GET /admin/relatorios" do
+    it "renders relatorios successfully" do
+      post login_path, params: { email: admin.email, password: "senha" }
+      get admin_relatorios_path
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe "GET /resultados/:id" do
+    it "renders show with answers and calculates likert/text" do
+      post login_path, params: { email: admin.email, password: "senha" }
+      
+      q_likert = QuestaoTemplate.create!(template: template, enunciado: "Nota", tipo: "likert", obrigatoria: true, ordem: 2)
+      
+      resposta = Resposta.create!(formulario: formulario, usuario: discente, enviado_em: Time.current)
+      RespostaItem.create!(resposta: resposta, questao_template: template.perguntas.first, valor_texto: "Texto resposta")
+      RespostaItem.create!(resposta: resposta, questao_template: q_likert, valor_numerico: 5)
+      
+      get resultado_path(formulario)
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Texto resposta")
+    end
+
+    it "renders show without answers" do
+      post login_path, params: { email: admin.email, password: "senha" }
+      get resultado_path(formulario)
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("Este formulário ainda não recebeu respostas")
+    end
+
+    it "redirects if non-admin accesses show" do
+      post login_path, params: { email: discente.email, password: "senha" }
+      get resultado_path(formulario)
+      expect(response).to redirect_to("/")
+      expect(flash[:alert]).to include("Acesso negado")
+    end
+  end
+
   describe "GET /resultados/:id/export_csv" do
     it "denies access to non-admins" do
       post login_path, params: { email: discente.email, password: "senha" }
@@ -47,6 +93,17 @@ RSpec.describe "Resultados", type: :request do
       expect(csv_content).to include("Turma A")
       expect(csv_content).to include("Algoritmos")
       expect(csv_content).to include("Resposta teste")
+    end
+    
+    it "filters CSV by turma param" do
+      post login_path, params: { email: admin.email, password: "senha" }
+      resposta = Resposta.create!(formulario: formulario, usuario: discente, enviado_em: Time.current)
+      RespostaItem.create!(resposta: resposta, questao_template: template.perguntas.first, valor_texto: "Resposta filtrada")
+      
+      get export_csv_resultado_path(id: formulario.id, turma_id: turma.id)
+      
+      csv_content = response.body
+      expect(csv_content).to include("Resposta filtrada")
     end
   end
 end

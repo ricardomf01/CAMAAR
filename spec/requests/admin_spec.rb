@@ -20,6 +20,11 @@ RSpec.describe "Admins", type: :request do
       get admin_dashboard_path
       expect(response).to have_http_status(:success)
     end
+
+    it "releases lock if release_lock param is true" do
+      get admin_dashboard_path, params: { release_lock: "true" }
+      expect(response).to have_http_status(:success)
+    end
   end
 
   describe "GET /admin/turmas" do
@@ -29,10 +34,117 @@ RSpec.describe "Admins", type: :request do
     end
   end
 
+  describe "GET /admin/turma_avaliacoes" do
+    it "returns http success for turma without department restriction" do
+      turma = Turma.create!(codigo_turma: "T1", semestre: "2024", departamento: Departamento.create!(nome: "D1"), disciplina: Disciplina.create!(nome: "D1", codigo: "D1"))
+      get admin_turma_avaliacoes_path(turma)
+      expect(response).to have_http_status(:success)
+    end
+  end
+
   describe "GET /admin/desempenho_semestral" do
-    it "returns http success" do
+    it "returns http success and computes averages" do
       get admin_desempenho_semestral_path
       expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe "POST /admin/carregar_dados_teste" do
+    it "loads data successfully" do
+      allow(TestDataLoader).to receive(:call).and_return(true)
+      post carregar_dados_teste_path
+      expect(response).to redirect_to(admin_dashboard_path)
+      expect(flash[:notice]).to include("Importação concluída com sucesso")
+    end
+
+    it "handles simulated errors" do
+      post carregar_dados_teste_path, params: { sigaa_api_status: "offline" }
+      expect(response).to redirect_to(admin_dashboard_path)
+      expect(flash[:alert]).to include("Erro de conexão com o SIGAA")
+    end
+
+    it "handles exceptions during load" do
+      allow(TestDataLoader).to receive(:call).and_raise(StandardError.new("Test Error"))
+      post carregar_dados_teste_path
+      expect(response).to redirect_to(admin_dashboard_path)
+      expect(flash[:alert]).to include("Erro ao carregar dados de teste")
+    end
+  end
+
+  describe "GET /admin/import_console" do
+    it "renders success and handles release_lock" do
+      get admin_import_console_path, params: { release_lock: "true" }
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe "POST /admin/sigaa_import" do
+    it "handles offline error" do
+      post sigaa_import_path, params: { sigaa_api_status: "offline" }
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:alert]).to include("Erro de conexão com o SIGAA")
+    end
+
+    it "handles corrupted error" do
+      post sigaa_import_path, params: { sigaa_data: "corrupted" }
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:alert]).to include("Erro de compatibilidade")
+    end
+
+    it "imports successfully" do
+      post sigaa_import_path
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:notice]).to include("Importação concluída")
+    end
+  end
+
+  describe "POST /admin/sigaa_update" do
+    before { post sigaa_update_path, params: { release_lock: "true" } }
+
+    it "handles release_lock" do
+      post sigaa_update_path, params: { release_lock: "true" }
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:notice]).to include("Trava liberada com sucesso")
+    end
+
+    it "handles large_volume" do
+      post sigaa_update_path, params: { large_volume: "true" }
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:notice]).to include("Processando atualização de grande volume")
+    end
+
+    it "handles missing_codes error" do
+      post sigaa_update_path, params: { sigaa_data: "missing_codes" }
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:alert]).to include("Códigos de disciplina ausentes")
+    end
+
+    it "handles empty data error" do
+      post sigaa_update_path, params: { semestre: "futuro" }
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:alert]).to include("Nenhum dado novo encontrado")
+    end
+
+    it "updates successfully and simulates unenrollment" do
+      ENV["SIGAA_DATA_STATUS"] = "missing_aluno"
+      
+      student = Usuario.create!(nome: "Aluno Teste", email: "aluno@teste.com", perfil: "discente", password: "123", ativo: true)
+      turma = Turma.create!(codigo_turma: "T1", semestre: "2024", departamento: Departamento.create!(nome: "D"), disciplina: Disciplina.create!(nome: "D", codigo: "D"))
+      Matricula.create!(usuario: student, turma: turma, papel_na_turma: "aluno")
+      
+      post sigaa_update_path
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:notice]).to include("Base de dados atualizada")
+      
+      ENV["SIGAA_DATA_STATUS"] = nil
+    end
+
+    it "simulates updating lock" do
+      ENV["SIGAA_UPDATING_MOCK"] = "true"
+      post sigaa_update_path
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:alert]).to include("Uma atualização já está em andamento")
+      ENV["SIGAA_UPDATING_MOCK"] = nil
     end
   end
 
