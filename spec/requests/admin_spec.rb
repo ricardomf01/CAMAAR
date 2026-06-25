@@ -36,6 +36,17 @@ RSpec.describe "Admins", type: :request do
     end
   end
 
+  context "Cenários Tristes: Acesso negado a usuários não administrativos" do
+    let(:discente_teste) { Usuario.create!(nome: "Discente", email: "aluno_comum@unb.br", perfil: "discente", password: "123", ativo: true) }
+
+    it "bloqueia o acesso de um estudante às páginas de admin e redireciona para root_path" do
+      post login_path, params: { email: discente_teste.email, password: "123" }
+      get admin_dashboard_path
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Acesso negado. Esta área é restrita para administradores.")
+    end
+  end
+
   # --- INÍCIO DOS TESTES DA ISSUE #106 (ESTADO RED) ---
   describe "Sistema de gerenciamento por departamento (Issue #106)" do
     let(:departamento_admin) { Departamento.create!(nome: "Dep Admin") }

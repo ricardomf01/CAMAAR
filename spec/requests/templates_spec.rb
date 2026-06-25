@@ -53,4 +53,24 @@ RSpec.describe "Templates", type: :request do
       expect(Template.first.perguntas.count).to eq(1)
     end
   end
+
+  context "Cenários Tristes: Usuário sem permissão administrativa" do
+    let(:aluno_user) { Usuario.create!(nome: "Aluno", email: "aluno@unb.br", perfil: "discente", password: "senha", ativo: true) }
+
+    it "bloqueia criação de template por estudante" do
+      delete logout_path
+      post login_path, params: { email: aluno_user.email, password: "senha" }
+
+      post templates_path, params: {
+        template: {
+          titulo: "Template Pirata",
+          perfil_alvo: "discente",
+          perguntas: [{ texto: "P1", tipo: "aberta" }]
+        }
+      }
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Acesso negado. Esta área é restrita para administradores.")
+      expect(Template.count).to eq(0)
+    end
+  end
 end
