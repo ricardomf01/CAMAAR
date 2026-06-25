@@ -88,5 +88,4 @@ class SessionsController < ApplicationController
       redirect_to avaliacoes_path
     end
   end
-
 end

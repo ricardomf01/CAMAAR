@@ -41,7 +41,7 @@ RSpec.describe "Avaliacoes", type: :request do
 
     it "prevents double submission" do
       Resposta.create!(formulario: formulario, usuario: discente, enviado_em: Time.current)
-      
+
       post responder_avaliacao_path(id: formulario.id), params: {
         respostas: {
           "0" => { texto: "Minha segunda resposta" }

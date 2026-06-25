@@ -33,13 +33,13 @@ RSpec.describe "Resultados", type: :request do
   describe "GET /resultados/:id" do
     it "renders show with answers and calculates likert/text" do
       post login_path, params: { email: admin.email, password: "senha" }
-      
+
       q_likert = QuestaoTemplate.create!(template: template, enunciado: "Nota", tipo: "likert", obrigatoria: true, ordem: 2)
-      
+
       resposta = Resposta.create!(formulario: formulario, usuario: discente, enviado_em: Time.current)
       RespostaItem.create!(resposta: resposta, questao_template: template.perguntas.first, valor_texto: "Texto resposta")
       RespostaItem.create!(resposta: resposta, questao_template: q_likert, valor_numerico: 5)
-      
+
       get resultado_path(formulario)
       expect(response).to have_http_status(:success)
       expect(response.body).to include("Texto resposta")
@@ -77,16 +77,16 @@ RSpec.describe "Resultados", type: :request do
 
     it "exports CSV if there are responses" do
       post login_path, params: { email: admin.email, password: "senha" }
-      
+
       resposta = Resposta.create!(formulario: formulario, usuario: discente, enviado_em: Time.current)
       RespostaItem.create!(resposta: resposta, questao_template: template.perguntas.first, valor_texto: "Resposta teste")
-      
+
       get export_csv_resultado_path(id: formulario.id)
-      
+
       expect(response).to have_http_status(:success)
       expect(response.media_type).to eq("text/csv")
       expect(response.headers["Content-Disposition"]).to include("filename=")
-      
+
       csv_content = response.body
       expect(csv_content).to include("Matrícula,Turma,Disciplina,Respostas")
       expect(csv_content).to include("Anônimo") # Because student doesn't have matricula string
@@ -94,14 +94,14 @@ RSpec.describe "Resultados", type: :request do
       expect(csv_content).to include("Algoritmos")
       expect(csv_content).to include("Resposta teste")
     end
-    
+
     it "filters CSV by turma param" do
       post login_path, params: { email: admin.email, password: "senha" }
       resposta = Resposta.create!(formulario: formulario, usuario: discente, enviado_em: Time.current)
       RespostaItem.create!(resposta: resposta, questao_template: template.perguntas.first, valor_texto: "Resposta filtrada")
-      
+
       get export_csv_resultado_path(id: formulario.id, turma_id: turma.id)
-      
+
       csv_content = response.body
       expect(csv_content).to include("Resposta filtrada")
     end

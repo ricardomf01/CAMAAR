@@ -67,7 +67,7 @@ class ResultadosController < ApplicationController
     (1..5).to_h do |num|
       count = valores.count(num)
       percentage = valores.any? ? (count.to_f / valores.size * 100).round : 0
-      [num, percentage]
+      [ num, percentage ]
     end
   end
 
@@ -128,7 +128,7 @@ class ResultadosController < ApplicationController
   def append_resposta_itens_to_csv(csv, form, resp)
     aluno_turma = extract_aluno_turma(form, resp)
     matricula = resp.usuario.matricula || "Anônimo"
-    
+
     resp.resposta_itens.each do |item|
       csv << [ matricula, aluno_turma.codigo_turma, aluno_turma.disciplina.nome, extract_item_value(item) ]
     end

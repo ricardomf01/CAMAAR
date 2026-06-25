@@ -66,7 +66,7 @@ RSpec.describe "Templates", type: :request do
         template: {
           titulo: "Template Error",
           perfil_alvo: "discente",
-          perguntas: [{ texto: "Pergunta", tipo: "aberta" }]
+          perguntas: [ { texto: "Pergunta", tipo: "aberta" } ]
         }
       }
       expect(response).to have_http_status(:unprocessable_entity)
@@ -79,7 +79,7 @@ RSpec.describe "Templates", type: :request do
         template: {
           titulo: "Template Error 2",
           perfil_alvo: "discente",
-          perguntas: [{ texto: "Pergunta", tipo: "aberta" }]
+          perguntas: [ { texto: "Pergunta", tipo: "aberta" } ]
         }
       }
       expect(response).to have_http_status(:unprocessable_entity)
@@ -131,12 +131,32 @@ RSpec.describe "Templates", type: :request do
       discente = Usuario.create!(nome: "Aluno Teste", email: "aluno_del@teste.com", perfil: "discente", password: "123", ativo: true)
       Matricula.create!(usuario: discente, turma: turma, papel_na_turma: "aluno")
       Formulario.create!(template: template, turma_id: turma.id, criado_por: admin, publico_alvo: "discente", status: "aberto", data_inicio: Time.now, data_limite: Time.now + 1.day)
-      
+
       delete template_path(template)
       expect(response).to redirect_to(templates_path)
       expect(Template.exists?(template.id)).to be_truthy
       follow_redirect!
       expect(response.body).to include("Não é possível deletar este template")
+    end
+  end
+
+  context "Cenários Tristes: Usuário sem permissão administrativa" do
+    let(:aluno_user) { Usuario.create!(nome: "Aluno", email: "aluno@unb.br", perfil: "discente", password: "senha", ativo: true) }
+
+    it "bloqueia criação de template por estudante" do
+      delete logout_path
+      post login_path, params: { email: aluno_user.email, password: "senha" }
+
+      post templates_path, params: {
+        template: {
+          titulo: "Template Pirata",
+          perfil_alvo: "discente",
+          perguntas: [ { texto: "P1", tipo: "aberta" } ]
+        }
+      }
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Acesso negado. Esta área é restrita para administradores.")
+      expect(Template.count).to eq(0)
     end
   end
 end

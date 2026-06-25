@@ -118,5 +118,4 @@ class TemplatesController < ApplicationController
     flash.now[:alert] = message
     render :index, status: :unprocessable_entity
   end
-
 end

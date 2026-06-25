@@ -42,20 +42,20 @@ RSpec.describe Formulario, type: :model do
       turma.matriculas.create!(usuario: discente, papel_na_turma: 'discente')
 
       Formulario.create!(
-        turma: turma, 
-        publico_alvo: 'discente', 
-        status: 'aberto', 
-        template: template, 
+        turma: turma,
+        publico_alvo: 'discente',
+        status: 'aberto',
+        template: template,
         criado_por: admin,
         data_inicio: Time.current,
         data_limite: Time.current + 1.day
       )
 
       novo_formulario = Formulario.new(
-        turma: turma, 
-        publico_alvo: 'discente', 
-        status: 'aberto', 
-        template: template, 
+        turma: turma,
+        publico_alvo: 'discente',
+        status: 'aberto',
+        template: template,
         criado_por: admin,
         data_inicio: Time.current,
         data_limite: Time.current + 1.day

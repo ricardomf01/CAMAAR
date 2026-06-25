@@ -49,6 +49,17 @@ RSpec.describe "Admins", type: :request do
     end
   end
 
+  context "Cenários Tristes: Acesso negado a usuários não administrativos" do
+    let(:discente_teste) { Usuario.create!(nome: "Discente", email: "aluno_comum@unb.br", perfil: "discente", password: "123", ativo: true) }
+
+    it "bloqueia o acesso de um estudante às páginas de admin e redireciona para root_path" do
+      post login_path, params: { email: discente_teste.email, password: "123" }
+      get admin_dashboard_path
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Acesso negado. Esta área é restrita para administradores.")
+    end
+  end
+
   describe "POST /admin/carregar_dados_teste" do
     it "loads data successfully" do
       allow(TestDataLoader).to receive(:call).and_return(true)
@@ -127,15 +138,15 @@ RSpec.describe "Admins", type: :request do
 
     it "updates successfully and simulates unenrollment" do
       ENV["SIGAA_DATA_STATUS"] = "missing_aluno"
-      
+
       student = Usuario.create!(nome: "Aluno Teste", email: "aluno@teste.com", perfil: "discente", password: "123", ativo: true)
       turma = Turma.create!(codigo_turma: "T1", semestre: "2024", departamento: Departamento.create!(nome: "D"), disciplina: Disciplina.create!(nome: "D", codigo: "D"))
       Matricula.create!(usuario: student, turma: turma, papel_na_turma: "aluno")
-      
+
       post sigaa_update_path
       expect(response).to redirect_to(admin_import_console_path)
       expect(flash[:notice]).to include("Base de dados atualizada")
-      
+
       ENV["SIGAA_DATA_STATUS"] = nil
     end
 
