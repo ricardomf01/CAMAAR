@@ -42,7 +42,7 @@ RSpec.describe "Passwords", type: :request do
       user = Usuario.create!(nome: "Admin", email: "admin@unb.br", perfil: "administrador", password: "senha", ativo: true)
       user.generate_reset_token!
       user.update_column(:reset_token_sent_at, 25.hours.ago)
-      
+
       get reset_password_path(token: user.reset_token)
       # Depende do fix no controller, esperamos que renderize erro ou redirecione
       expect(response.body).to include("Link expirado")

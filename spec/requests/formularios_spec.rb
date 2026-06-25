@@ -61,7 +61,7 @@ RSpec.describe "Formularios e Avaliações", type: :request do
     context "Cenário de Erro: Envio de datas em branco" do
       it "não permite a criação do formulário se as datas de início e limite estiverem vazias" do
         post login_path, params: { email: admin.email, password: "123" }
-        
+
         post formularios_path, params: {
           turma_id: turma.id,
           formulario: {

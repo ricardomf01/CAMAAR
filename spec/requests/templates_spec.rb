@@ -65,7 +65,7 @@ RSpec.describe "Templates", type: :request do
         template: {
           titulo: "Template Pirata",
           perfil_alvo: "discente",
-          perguntas: [{ texto: "P1", tipo: "aberta" }]
+          perguntas: [ { texto: "P1", tipo: "aberta" } ]
         }
       }
       expect(response).to redirect_to(root_path)

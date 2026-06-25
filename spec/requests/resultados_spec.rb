@@ -31,16 +31,16 @@ RSpec.describe "Resultados", type: :request do
 
     it "exports CSV if there are responses" do
       post login_path, params: { email: admin.email, password: "senha" }
-      
+
       resposta = Resposta.create!(formulario: formulario, usuario: discente, enviado_em: Time.current)
       RespostaItem.create!(resposta: resposta, questao_template: template.perguntas.first, valor_texto: "Resposta teste")
-      
+
       get export_csv_resultado_path(id: formulario.id)
-      
+
       expect(response).to have_http_status(:success)
       expect(response.media_type).to eq("text/csv")
       expect(response.headers["Content-Disposition"]).to include("filename=")
-      
+
       csv_content = response.body
       expect(csv_content).to include("Matrícula,Turma,Disciplina,Respostas")
       expect(csv_content).to include("Anônimo") # Because student doesn't have matricula string
