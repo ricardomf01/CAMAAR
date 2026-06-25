@@ -49,25 +49,31 @@ class Usuario < ApplicationRecord
   private
 
   def password_security_rules
-    if password.blank? || password_confirmation.blank?
-      errors.add(:password, "Preencha todos os campos obrigatórios")
-      return
-    end
+    return handle_missing_passwords if password.blank? || password_confirmation.blank?
 
-    if password != password_confirmation
-      errors.add(:password, "As senhas não coincidem")
-    end
+    check_password_match
+    check_password_length
+    check_password_numbers
+    check_password_lowercase
+  end
 
-    if password.length < 6
-      errors.add(:password, "Senha deve ter no mínimo 6 caracteres")
-    end
+  def handle_missing_passwords
+    errors.add(:password, "Preencha todos os campos obrigatórios")
+  end
 
-    unless password.match(/\d/)
-      errors.add(:password, "A senha deve conter pelo menos um número")
-    end
+  def check_password_match
+    errors.add(:password, "As senhas não coincidem") if password != password_confirmation
+  end
 
-    if password.match(/[A-Z]/)
-      errors.add(:password, "A senha deve conter apenas letras minúsculas")
-    end
+  def check_password_length
+    errors.add(:password, "Senha deve ter no mínimo 6 caracteres") if password.length < 6
+  end
+
+  def check_password_numbers
+    errors.add(:password, "A senha deve conter pelo menos um número") unless password.match(/\d/)
+  end
+
+  def check_password_lowercase
+    errors.add(:password, "A senha deve conter apenas letras minúsculas") if password.match(/[A-Z]/)
   end
 end

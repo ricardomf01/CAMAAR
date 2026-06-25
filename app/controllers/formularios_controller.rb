@@ -8,110 +8,151 @@ class FormulariosController < ApplicationController
   end
 
   def create
-    # Normalize público-alvo
-    p_alvo = params[:publico_alvo] || params[:formulario]&.[](:publico_alvo)
-    if p_alvo.present?
-      if p_alvo.to_s.downcase.include?("discente")
-        p_alvo = "discente"
-      elsif p_alvo.to_s.downcase.include?("docente")
-        p_alvo = "docente"
-      end
-    end
+    form_params = extract_formulario_params
 
-    template_id = params[:template_id] || params[:formulario]&.[](:template_id)
-    template = Template.find_by(id: template_id)
-
-    status_val = params[:status] || params[:formulario]&.[](:status) || "aberto"
-
-    data_in = params[:data_inicio] || params[:formulario]&.[](:data_inicio)
-    data_lim = params[:data_limite] || params[:formulario]&.[](:data_limite)
-
-    # Convert dates to active support time if string
-    begin
-      data_in = Time.parse(data_in) if data_in.is_a?(String) && data_in.present?
-      data_lim = Time.parse(data_lim) if data_lim.is_a?(String) && data_lim.present?
-    rescue => e
-      # ignore parsing error, let validation catch it
-    end
-
-    # Check if we are doing single form creation (via turma_id)
-    turma_id = params[:turma_id] || params[:formulario]&.[](:turma_id)
-
-    if turma_id.present?
-      # Single Formulario creation
-      @formulario = Formulario.new(
-        template: template,
-        turma_id: turma_id,
-        criado_por: current_user,
-        publico_alvo: p_alvo,
-        status: status_val,
-        data_inicio: data_in,
-        data_limite: data_lim
-      )
-
-      if @formulario.save
-        flash[:notice] = "Formulário criado com sucesso!"
-        redirect_to admin_dashboard_path
-      else
-        @templates = Template.all
-        @turmas = Turma.all
-
-        # Exact mapping of validation messages to flash alert to satisfy Cucumber
-        alert_msg = @formulario.errors.full_messages.first
-        if @formulario.errors[:template_id].any? { |e| e.include?("templates inativos") } || @formulario.errors.full_messages.any? { |m| m.include?("templates inativos") }
-          alert_msg = "Não é possível publicar formulários usando templates inativos"
-        elsif @formulario.errors[:publico_alvo].any? { |e| e.include?("Obrigatório") }
-          alert_msg = "Obrigatório: Selecione se o formulário é destinado a docentes ou discentes."
-        elsif @formulario.errors[:publico_alvo].any? { |e| e.include?("muito longo") }
-          alert_msg = "Público alvo inválido ou muito longo"
-        elsif @formulario.errors.full_messages.any? { |m| m.include?("discentes vinculados") }
-          alert_msg = "Ação inválida: Esta turma ainda não possui discentes vinculados no SIGAA para responderem à avaliação."
-        elsif @formulario.errors.full_messages.any? { |m| m.include?("Já existe um formulário ativo") }
-          alert_msg = "Atenção: Já existe um formulário ativo para os discentes desta turma. Encerre o atual antes de publicar um novo."
-        elsif @formulario.errors[:data_inicio].any? || @formulario.errors[:data_limite].any?
-          alert_msg = "Datas de início e limite são obrigatórias"
-        end
-
-        flash.now[:alert] = alert_msg
-        render :new, status: :unprocessable_entity
-      end
+    if form_params[:turma_id].present?
+      create_single(form_params)
     else
-      # Batch creation from checkbox table (existing logic)
-      if params[:turma_ids].blank?
-        flash[:alert] = "Selecione pelo menos uma turma para distribuir os formulários."
-        redirect_to new_formulario_path and return
-      end
+      create_batch(form_params)
+    end
+  end
 
-      created_count = 0
-      errors = []
+  private
 
-      ActiveRecord::Base.transaction do
-        params[:turma_ids].each do |t_id|
-          form = Formulario.new(
-            template: template,
-            turma_id: t_id,
-            criado_por: current_user,
-            publico_alvo: p_alvo || template&.perfil_alvo || "discente",
-            status: status_val,
-            data_inicio: data_in || Time.current,
-            data_limite: data_lim || (Time.current + 7.days)
-          )
-          if form.save
-            created_count += 1
-          else
-            errors << form.errors.full_messages.first
-            raise ActiveRecord::Rollback
-          end
-        end
-      end
+  def extract_formulario_params
+    {
+      publico_alvo: parse_publico_alvo,
+      template_id: resolve_param(:template_id),
+      status: resolve_param(:status) || "aberto",
+      data_inicio: parse_time(resolve_param(:data_inicio)),
+      data_limite: parse_time(resolve_param(:data_limite)),
+      turma_id: resolve_param(:turma_id),
+      turma_ids: params[:turma_ids]
+    }
+  end
 
-      if errors.any?
-        flash[:alert] = "Erro ao disparar formulários: #{errors.join(', ')}"
-        redirect_to new_formulario_path
-      else
-        flash[:notice] = "Formulário '#{template&.titulo}' disparado para #{created_count} turmas com sucesso!"
-        redirect_to admin_dashboard_path
+  def parse_publico_alvo
+    raw = resolve_param(:publico_alvo).to_s.downcase
+    return "discente" if raw.include?("discente")
+    return "docente" if raw.include?("docente")
+    raw
+  end
+
+  def resolve_param(key)
+    params[key] || params[:formulario]&.[](key)
+  end
+
+  def parse_time(val)
+    return Time.parse(val) if val.is_a?(String) && val.present?
+    val
+  rescue StandardError
+    val
+  end
+
+  def create_single(form_params)
+    @formulario = Formulario.new(
+      template: Template.find_by(id: form_params[:template_id]),
+      turma_id: form_params[:turma_id],
+      criado_por: current_user,
+      publico_alvo: form_params[:publico_alvo],
+      status: form_params[:status],
+      data_inicio: form_params[:data_inicio],
+      data_limite: form_params[:data_limite]
+    )
+
+    if @formulario.save
+      flash[:notice] = "Formulário criado com sucesso!"
+      redirect_to admin_dashboard_path
+    else
+      handle_single_creation_error
+    end
+  end
+
+  def handle_single_creation_error
+    @templates = Template.all
+    @turmas = Turma.all
+    flash.now[:alert] = extract_validation_message
+    render :new, status: :unprocessable_entity
+  end
+
+  def extract_validation_message
+    formulario_error_message || @formulario.errors.full_messages.first
+  end
+
+  def formulario_error_message
+    msgs = @formulario.errors.full_messages
+    alvo_errs = @formulario.errors[:publico_alvo]
+    return template_inativo_msg(msgs) if template_inativo_error?(msgs)
+    return alvo_error_msg(alvo_errs) if alvo_errs.any?
+    return discentes_msg(msgs) if msgs.any? { |m| m.include?("discentes vinculados") }
+    return formulario_ativo_msg(msgs) if msgs.any? { |m| m.include?("Já existe um formulário ativo") }
+    return "Datas de início e limite são obrigatórias" if dates_blank?
+    nil
+  end
+
+  def template_inativo_msg(_msgs) = "Não é possível publicar formulários usando templates inativos"
+  def discentes_msg(_msgs) = "Ação inválida: Esta turma ainda não possui discentes vinculados no SIGAA para responderem à avaliação."
+  def formulario_ativo_msg(_msgs) = "Atenção: Já existe um formulário ativo para os discentes desta turma. Encerre o atual antes de publicar um novo."
+
+  def alvo_error_msg(errs)
+    return "Obrigatório: Selecione se o formulário é destinado a docentes ou discentes." if errs.any? { |e| e.include?("Obrigatório") }
+    return "Público alvo inválido ou muito longo" if errs.any? { |e| e.include?("muito longo") }
+    nil
+  end
+
+  def dates_blank?
+    @formulario.errors[:data_inicio].any? || @formulario.errors[:data_limite].any?
+  end
+
+  def template_inativo_error?(msgs)
+    @formulario.errors[:template_id].any? { |e| e.include?("templates inativos") } ||
+      msgs.any? { |m| m.include?("templates inativos") }
+  end
+
+  def create_batch(form_params)
+    return redirect_no_turmas if form_params[:turma_ids].blank?
+
+    template = Template.find_by(id: form_params[:template_id])
+    errors, created_count = run_batch_transaction(template, form_params)
+    handle_batch_result(errors, created_count, template)
+  end
+
+  def redirect_no_turmas
+    flash[:alert] = "Selecione pelo menos uma turma para distribuir os formulários."
+    redirect_to new_formulario_path
+  end
+
+  def run_batch_transaction(template, form_params)
+    errors = []
+    created_count = 0
+    ActiveRecord::Base.transaction do
+      form_params[:turma_ids].each do |t_id|
+        form = build_batch_formulario(template, t_id, form_params)
+        form.save ? (created_count += 1) : (errors << form.errors.full_messages.first; raise ActiveRecord::Rollback)
       end
+    end
+    [ errors, created_count ]
+  end
+
+  def build_batch_formulario(template, t_id, form_params)
+    Formulario.new(
+      template: template,
+      turma_id: t_id,
+      criado_por: current_user,
+      publico_alvo: form_params[:publico_alvo] || template&.perfil_alvo || "discente",
+      status: form_params[:status],
+      data_inicio: form_params[:data_inicio] || Time.current,
+      data_limite: form_params[:data_limite] || (Time.current + 7.days)
+    )
+  end
+
+  def handle_batch_result(errors, created_count, template)
+    if errors.any?
+      flash[:alert] = "Erro ao disparar formulários: #{errors.join(', ')}"
+      redirect_to new_formulario_path
+    else
+      flash[:notice] = "Formulário '#{template&.titulo}' disparado para #{created_count} turmas com sucesso!"
+      redirect_to admin_dashboard_path
     end
   end
 end

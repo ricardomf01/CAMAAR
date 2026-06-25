@@ -42,17 +42,29 @@ class Formulario < ApplicationRecord
   end
 
   def no_active_form_for_same_public
-    if status == "aberto" && turma.present? && publico_alvo.present?
-      # check if another active form exists for the same class and target
-      # exclude self if persisted
-      scope = Formulario.where(turma_id: turma_id, status: "aberto")
-      # Match any target audience name (discente vs discentes, docente vs docentes)
-      target_norm = publico_alvo.to_s.downcase.pluralize
-      # Let's filter the ones that match
-      active_duplicates = scope.select { |f| f.publico_alvo.to_s.downcase.pluralize == target_norm && f.id != id }
-      if active_duplicates.any?
-        errors.add(:base, "Atenção: Já existe um formulário ativo para os discentes desta turma. Encerre o atual antes de publicar um novo.")
-      end
+    return unless check_active_form_conditions
+
+    if has_active_duplicate?
+      errors.add(:base, "Atenção: Já existe um formulário ativo para os discentes desta turma. Encerre o atual antes de publicar um novo.")
     end
+  end
+
+  def check_active_form_conditions
+    status == "aberto" && turma.present? && publico_alvo.present?
+  end
+
+  def has_active_duplicate?
+    target_norm = normalized_publico_alvo
+    active_forms_in_class.any? do |form|
+      form.publico_alvo.to_s.downcase.pluralize == target_norm
+    end
+  end
+
+  def active_forms_in_class
+    Formulario.where(turma_id: turma_id, status: "aberto").where.not(id: id)
+  end
+
+  def normalized_publico_alvo
+    publico_alvo.to_s.downcase.pluralize
   end
 end

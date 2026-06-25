@@ -54,6 +54,53 @@ RSpec.describe "Sessions", type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.body).to include("E-mail ou senha inválidos")
     end
+
+    it "fails with invalid credentials (matricula)" do
+      post login_path, params: { email: "123456789", password: "wrong_password" }
+      expect(session[:usuario_id]).to be_nil
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include("Matrícula ou senha inválidos")
+    end
+
+    it "fails with unexisting matricula" do
+      post login_path, params: { email: "123456789", password: "senha" }
+      expect(session[:usuario_id]).to be_nil
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include("Matrícula ou senha inválidos")
+    end
+
+    it "fails with unexisting email" do
+      post login_path, params: { email: "nonexistent@unb.br", password: "senha" }
+      expect(session[:usuario_id]).to be_nil
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include("E-mail ou senha inválidos")
+    end
+
+    it "handles pending setup user" do
+      pending_user = Usuario.create!(nome: "Pending", email: "pending@unb.br", perfil: "discente", password: "senha", ativo: true)
+      pending_user.generate_setup_token!
+      post login_path, params: { email: pending_user.email, password: "senha" }
+      expect(session[:usuario_id]).to be_nil
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include("Cadastro pendente")
+    end
+
+    it "handles inactive user" do
+      inactive_user = Usuario.create!(nome: "Inactive", email: "inactive@unb.br", perfil: "discente", password: "senha", ativo: false)
+      post login_path, params: { email: inactive_user.email, password: "senha" }
+      expect(session[:usuario_id]).to be_nil
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.body).to include("Usuário inativo")
+    end
+  end
+
+  describe "GET /login when already logged in as discente" do
+    it "redirects to avaliacoes_path" do
+      discente = Usuario.create!(nome: "Discente", email: "discente@unb.br", perfil: "discente", password: "senha", ativo: true)
+      post login_path, params: { email: discente.email, password: "senha" }
+      get login_path
+      expect(response).to redirect_to(avaliacoes_path)
+    end
   end
 
   describe "DELETE /logout" do
