@@ -199,4 +199,63 @@ RSpec.describe "Admins", type: :request do
       end
     end
   end
+
+  describe "POST /admin/sigaa_import com lock ativo" do
+    it "bloqueia quando @@sigaa_updating é true" do
+      # Ativa o lock via large_volume
+      post sigaa_update_path, params: { large_volume: "true" }
+
+      # Agora tenta importar com o lock ativo
+      post sigaa_import_path
+      expect(response).to redirect_to(admin_import_console_path)
+      expect(flash[:alert]).to include("Uma atualização já está em andamento")
+
+      # Libera o lock
+      post sigaa_update_path, params: { release_lock: "true" }
+    end
+  end
+
+  describe "GET /admin/turmas sem departamento vinculado" do
+    it "lista todas as turmas quando admin não tem departamento" do
+      admin_user.update!(departamento: nil)
+      disciplina = Disciplina.create!(codigo: "XX", nome: "Matéria X")
+      dep = Departamento.create!(nome: "Dep X")
+      Turma.create!(codigo_turma: "TX", semestre: "2024.1",
+                    disciplina: disciplina, departamento: dep)
+
+      get admin_turmas_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("TX")
+    end
+
+    it "exibe aviso quando admin sem departamento e sem turmas" do
+      admin_user.update!(departamento: nil)
+      get admin_turmas_path
+      expect(response.body).to include("Nenhuma turma encontrada")
+    end
+  end
+
+  describe "GET /admin/desempenho_semestral" do
+    it "calcula médias corretamente quando há respostas likert" do
+      disc = Disciplina.create!(codigo: "D2", nome: "Disc 2")
+      dep  = Departamento.create!(nome: "Dep 2")
+      admin_user.update!(departamento: dep)
+      turma = Turma.create!(codigo_turma: "T2", semestre: "2024.1",
+                            disciplina: disc, departamento: dep)
+      tmpl = Template.create!(titulo: "T", criador: admin_user, skip_questions_validation: true)
+      q    = QuestaoTemplate.create!(template: tmpl, enunciado: "Q", tipo: "likert", ordem: 1)
+
+      disc2 = Usuario.create!(nome: "D", email: "d@u", perfil: "discente", password: "d")
+      Matricula.create!(usuario: disc2, turma: turma, papel_na_turma: "aluno")
+      form = Formulario.create!(template: tmpl, turma: turma, criado_por: admin_user,
+                                publico_alvo: "discente", status: "aberto",
+                                data_inicio: 1.day.ago, data_limite: 1.day.from_now)
+      resp = Resposta.create!(formulario: form, usuario: disc2, enviado_em: Time.current)
+      RespostaItem.create!(resposta: resp, questao_template: q, valor_numerico: 5)
+
+      get admin_desempenho_semestral_path
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("5.0")
+    end
+  end
 end

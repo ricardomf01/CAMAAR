@@ -88,4 +88,102 @@ RSpec.describe "Passwords", type: :request do
       expect(user.authenticate("novasenha123")).to be_truthy
     end
   end
+
+  describe "GET /usuarios/definir_senha" do
+  let(:user) do
+    u = Usuario.new(nome: "Novo", email: "novo@unb.br", perfil: "discente",
+                    ativo: false, senha_hash: "")
+    u.save!(validate: false)
+    u
+  end
+
+  it "renderiza a página de definição de senha com token válido" do
+    user.generate_setup_token!
+    get setup_password_path(token: user.setup_token)
+    expect(response).to have_http_status(:success)
+    expect(response.body).to include("Definir senha")
+  end
+
+  it "renderiza erro quando token é inválido" do
+    get setup_password_path(token: "token_invalido")
+    expect(response.body).to include("Link inválido")
+  end
+
+  it "renderiza erro quando token já foi utilizado" do
+    user.generate_setup_token!
+    user.update_columns(setup_token_used: true)
+    get setup_password_path(token: user.setup_token)
+    expect(response.body).to include("já foi utilizado")
+  end
+
+  it "renderiza erro quando token está expirado" do
+    user.generate_setup_token!
+    user.update_columns(setup_token_sent_at: 25.hours.ago)
+    get setup_password_path(token: user.setup_token)
+    expect(response.body).to include("Link expirado")
+  end
+end
+
+describe "POST /usuarios/definir_senha" do
+  let(:user) do
+    u = Usuario.new(nome: "Novo", email: "novo@unb.br", perfil: "discente",
+                    ativo: false, senha_hash: "")
+    u.save!(validate: false)
+    u.generate_setup_token!
+    u
+  end
+
+  it "ativa o usuário e faz login com senha válida" do
+    post setup_password_path,
+         params: { token: user.setup_token,
+                   password: "senha123", password_confirmation: "senha123" }
+    expect(response).to redirect_to(avaliacoes_path)
+    expect(user.reload.ativo).to be true
+    expect(user.reload.setup_token_used).to be true
+  end
+
+  it "retorna erro quando senha e confirmação não coincidem" do
+    post setup_password_path,
+         params: { token: user.setup_token,
+                   password: "senha123", password_confirmation: "senha456" }
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.body).to include("não coincidem")
+  end
+
+  it "retorna erro quando senha é curta demais" do
+    post setup_password_path,
+         params: { token: user.setup_token,
+                   password: "abc1", password_confirmation: "abc1" }
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.body).to include("mínimo 6 caracteres")
+  end
+
+  it "retorna erro quando senha não contém número" do
+    post setup_password_path,
+         params: { token: user.setup_token,
+                   password: "somenteletras", password_confirmation: "somenteletras" }
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.body).to include("pelo menos um número")
+  end
+
+  it "retorna erro quando senha contém maiúsculas" do
+    post setup_password_path,
+         params: { token: user.setup_token,
+                   password: "Senha123", password_confirmation: "Senha123" }
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(response.body).to include("apenas letras minúsculas")
+  end
+
+  it "retorna erro quando campos estão em branco" do
+    post setup_password_path,
+         params: { token: user.setup_token, password: "", password_confirmation: "" }
+    expect(response.body).to include("Preencha todos os campos obrigatórios")
+  end
+
+  it "redireciona para login com token inválido no POST" do
+    post setup_password_path,
+         params: { token: "invalido", password: "senha123", password_confirmation: "senha123" }
+    expect(response).to redirect_to(login_path)
+  end
+end
 end
