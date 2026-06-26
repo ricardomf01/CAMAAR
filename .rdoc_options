@@ -1,0 +1,6 @@
+--title "CAMAAR - Sistema para Avaliação de Atividades Acadêmicas Remotas do CIC"
+--main README.md
+--exclude "(bin|config|db|features|log|public|spec|storage|tmp|vendor)/"
+app/**/*.rb
+lib/**/*.rb
+README.md
