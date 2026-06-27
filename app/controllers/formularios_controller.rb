@@ -3,13 +3,13 @@ class FormulariosController < ApplicationController
 
   # Renderiza a página para criação/distribuição de novos formulários de avaliação.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view contendo templates e turmas.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Inicializa +@templates+, +@turmas+ e um novo objeto +@formulario+.
   def new
     @templates = Template.all
@@ -19,13 +19,13 @@ class FormulariosController < ApplicationController
 
   # Processa a criação de um único formulário (para uma turma específica) ou em lote (para múltiplas turmas).
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:formulario]+ - Hash com os parâmetros enviados pelo formulário de criação.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redireciona para o dashboard ou renderiza a tela com erros de validação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Cria um ou mais registros de +Formulario+ no banco de dados. Define mensagens de sucesso/erro no +flash+.
   def create
     form_params = extract_formulario_params
@@ -41,10 +41,10 @@ class FormulariosController < ApplicationController
 
   # Extrai os parâmetros necessários para criação do formulário a partir da requisição.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Hash mapeado contendo os atributos tratados do formulário.
   def extract_formulario_params
     {
@@ -60,10 +60,10 @@ class FormulariosController < ApplicationController
 
   # Analisa e sanitiza o parâmetro do público-alvo.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * String contendo "discente", "docente" ou o valor original sanitizado.
   def parse_publico_alvo
     raw = resolve_param(:publico_alvo).to_s.downcase
@@ -74,10 +74,10 @@ class FormulariosController < ApplicationController
 
   # Resolve se o parâmetro está localizado no primeiro nível de chaves ou aninhado em +:formulario+.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +key+ - A chave de parâmetro desejada (Symbol).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * O valor associado à chave ou +nil+.
   def resolve_param(key)
     params[key] || params[:formulario]&.[](key)
@@ -85,10 +85,10 @@ class FormulariosController < ApplicationController
 
   # Tenta converter uma string de data/tempo para um objeto Time válido.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +val+ - O valor a ser convertido.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Objeto +Time+ ou o valor original em caso de erro/vazio.
   def parse_time(val)
     return Time.parse(val) if val.is_a?(String) && val.present?
@@ -99,13 +99,13 @@ class FormulariosController < ApplicationController
 
   # Cria um único formulário para uma turma específica.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +form_params+ - Hash de parâmetros higienizados.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento ou chamada para tratar o erro de persistência.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Salva um novo registro na tabela +formularios+ e define flash.
   def create_single(form_params)
     @formulario = Formulario.new(
@@ -128,13 +128,13 @@ class FormulariosController < ApplicationController
 
   # Define erros de validação e re-renderiza o formulário de criação unitária.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view +:new+ com status +:unprocessable_entity+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Recarrega +@templates+ e +@turmas+. Adiciona erro ao +flash.now+.
   def handle_single_creation_error
     @templates = Template.all
@@ -145,10 +145,10 @@ class FormulariosController < ApplicationController
 
   # Extrai a mensagem descritiva de erro de validação.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * String com a mensagem de erro.
   def extract_validation_message
     formulario_error_message || @formulario.errors.full_messages.first
@@ -156,10 +156,10 @@ class FormulariosController < ApplicationController
 
   # Mapeia mensagens customizadas ou detalhadas sobre erros de negócio específicos.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * String de erro amigável ou +nil+.
   def formulario_error_message
     msgs = @formulario.errors.full_messages
@@ -181,10 +181,10 @@ class FormulariosController < ApplicationController
 
   # Processa e mapeia erros na definição de público alvo do formulário.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +errs+ - Lista de erros do campo de público alvo (Array de Strings).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * String de erro amigável ou +nil+.
   def alvo_error_msg(errs)
     return "Obrigatório: Selecione se o formulário é destinado a docentes ou discentes." if errs.any? { |e| e.include?("Obrigatório") }
@@ -194,10 +194,10 @@ class FormulariosController < ApplicationController
 
   # Determina se alguma das datas obrigatórias está ausente.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean.
   def dates_blank?
     @formulario.errors[:data_inicio].any? || @formulario.errors[:data_limite].any?
@@ -205,10 +205,10 @@ class FormulariosController < ApplicationController
 
   # Determina se houve falha de validação gerada pelo uso de template inativo.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +msgs+ - Lista completa de erros do formulário (Array de Strings).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean.
   def template_inativo_error?(msgs)
     @formulario.errors[:template_id].any? { |e| e.include?("templates inativos") } ||
@@ -217,13 +217,13 @@ class FormulariosController < ApplicationController
 
   # Dispara a criação e distribuição de formulários em lote (batch).
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +form_params+ - Hash de parâmetros de formulário.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento de rotas.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Cria múltiplos registros na tabela +formularios+.
   def create_batch(form_params)
     return redirect_no_turmas if form_params[:turma_ids].blank?
@@ -235,13 +235,13 @@ class FormulariosController < ApplicationController
 
   # Redireciona e alerta o usuário caso tente disparar em lote sem selecionar turmas.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redireciona para a tela de novo formulário.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Insere alerta no +flash+.
   def redirect_no_turmas
     flash[:alert] = "Selecione pelo menos uma turma para distribuir os formulários."
@@ -250,14 +250,14 @@ class FormulariosController < ApplicationController
 
   # Executa a transação para criação em lote de formulários de maneira atômica.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +template+ - Instância do modelo +Template+.
   # * +form_params+ - Hash de parâmetros dos formulários.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Array no formato +[errors_array, created_count_integer]+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Realiza rollback completo caso qualquer um dos formulários do lote falhe na validação.
   def run_batch_transaction(template, form_params)
     errors = []
@@ -273,12 +273,12 @@ class FormulariosController < ApplicationController
 
   # Inicializa uma instância de formulário com os valores customizados ou defaults do lote.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +template+ - Instância do modelo +Template+.
   # * +t_id+ - ID da turma (Integer/String).
   # * +form_params+ - Hash de parâmetros originais.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Nova instância não persistida de +Formulario+.
   def build_batch_formulario(template, t_id, form_params)
     Formulario.new(
@@ -294,15 +294,15 @@ class FormulariosController < ApplicationController
 
   # Trata e notifica o resultado final da execução do lote de formulários.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +errors+ - Array contendo strings com mensagens de erros ocorridos.
   # * +created_count+ - Quantidade de formulários criados (Integer).
   # * +template+ - Instância do modelo +Template+ utilizado.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento de rotas.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define mensagens de aviso/sucesso no +flash+.
   def handle_batch_result(errors, created_count, template)
     if errors.any?

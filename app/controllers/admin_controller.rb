@@ -6,13 +6,13 @@ class AdminController < ApplicationController
 
   # Exibe o painel inicial do administrador e as estatísticas gerais do sistema.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:release_lock]+ - Se definido como "true", destrava o processo de atualização concorrente (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view do dashboard de administração.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Pode redefinir a variável @@sigaa_updating para +false+.
   def dashboard
     if params[:release_lock] == "true"
@@ -30,13 +30,13 @@ class AdminController < ApplicationController
 
   # Carrega dados fictícios ou iniciais para testes da aplicação.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a página do dashboard.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Popula tabelas no banco de dados usando TestDataLoader e define notificações de sucesso ou erro no +flash+.
   def carregar_dados_teste
     return if check_sigaa_simulated_errors(admin_dashboard_path)
@@ -52,13 +52,13 @@ class AdminController < ApplicationController
 
   # Renderiza a página do console de integração com o SIGAA.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:release_lock]+ - Se definido como "true", libera a trava concorrente (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a página console de importação do SIGAA.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Pode definir @@sigaa_updating para +false+.
   def import_console
     if params[:release_lock] == "true"
@@ -68,13 +68,13 @@ class AdminController < ApplicationController
 
   # Lista todas as turmas vinculadas ao departamento do administrador atual, ou todas as turmas se não houver vínculo específico.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view contendo a listagem das turmas.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define uma mensagem informativa no +flash.now+ caso nenhuma turma seja encontrada.
   def turmas
     @departamento = current_user.departamento
@@ -91,13 +91,13 @@ class AdminController < ApplicationController
 
   # Exibe os formulários de avaliação ativos de uma turma específica.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:id]+ - O ID da turma desejada (Integer/String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redireciona para a lista de turmas se houver acesso negado, ou renderiza os formulários da turma.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define alertas no +flash+ caso a turma pertença a outro departamento e o administrador tenha perfil restrito por departamento.
   def turma_avaliacoes
     @turma = Turma.find(params[:id])
@@ -111,13 +111,13 @@ class AdminController < ApplicationController
 
   # Apresenta métricas e médias de desempenho das turmas vinculadas ao departamento do administrador atual ou de todas as turmas.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view de desempenho semestral.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define a variável de instância +@desempenho_turmas+ mapeada com as estatísticas de média e número de respostas.
   def desempenho_semestral
     @departamento = current_user.departamento
@@ -134,13 +134,13 @@ class AdminController < ApplicationController
 
   # Simula a importação básica de dados do SIGAA.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a página do console de importação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Verifica erros simulados do SIGAA, alterando o +flash+ de alerta, ou adiciona notificação de sucesso se correr normalmente.
   def sigaa_import
     if @@sigaa_updating
@@ -157,14 +157,14 @@ class AdminController < ApplicationController
 
   # Simula o fluxo de atualização das matrículas e turmas do SIGAA (podendo liberar travas, processar alto volume ou simular cenários de cancelamento).
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:release_lock]+ - Se definido como "true", destrava o processo (String).
   # * +params[:large_volume]+ - Se definido como "true", ativa processamento assíncrono simulado de alto volume (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para o console de importação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Altera o banco de dados via simulação de desvinculação (+simulate_sigaa_unenrollment+), define variáveis de trava concorrente, e notifica via +flash+.
   def sigaa_update
     return handle_release_lock if params[:release_lock] == "true"
@@ -181,13 +181,13 @@ class AdminController < ApplicationController
 
   # Libera a trava concorrente de atualização e redireciona com confirmação.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para o console de importação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Redefine @@sigaa_updating para +false+ e insere mensagem de sucesso no +flash+.
   def handle_release_lock
     @@sigaa_updating = false
@@ -197,13 +197,13 @@ class AdminController < ApplicationController
 
   # Simula o processamento em lote de grande volume de dados ativando a trava persistente.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para o console de importação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define @@sigaa_updating como +true+ e adiciona mensagem explicativa no +flash+.
   def handle_large_volume
     @@sigaa_updating = true
@@ -213,13 +213,13 @@ class AdminController < ApplicationController
 
   # Verifica se a requisição atual solicita processamento de grande volume.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se for grande volume, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Nenhum.
   def large_volume_request?
     params[:large_volume] == "true" || ENV["SIGAA_LARGE_VOLUME"] == "true"
@@ -229,13 +229,13 @@ class AdminController < ApplicationController
 
   # Método interno para interceptar e tratar comportamentos de falha simulada (API offline, dados corrompidos, códigos ausentes, semestre vazio).
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +redirect_path+ - Rota para redirecionar em caso de erro simulado (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se algum erro ocorreu e redirecionou, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define alertas apropriados no +flash+ se um erro for detectado.
   def check_sigaa_simulated_errors(redirect_path)
     error_msg = find_sigaa_error
@@ -249,13 +249,13 @@ class AdminController < ApplicationController
 
   # Identifica a mensagem de erro específica baseada nas condições e variáveis de simulação configuradas no ambiente.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * String com a mensagem de erro apropriada, ou +nil+ se não houver erros simulados.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Nenhum.
   def find_sigaa_error
     return sigaa_offline_error if sigaa_status_matches?("offline", :sigaa_api_status, "SIGAA_API_STATUS")
@@ -279,12 +279,12 @@ class AdminController < ApplicationController
 
   # Compara um valor com as variáveis de requisição ou ambiente de status do SIGAA.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +val+ - Valor esperado (String).
   # * +param_key+ - Chave de parâmetro na requisição (Symbol).
   # * +env_key+ - Chave de variável de ambiente (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean.
   def sigaa_status_matches?(val, param_key, env_key)
     params[param_key] == val || ENV[env_key] == val
@@ -292,10 +292,10 @@ class AdminController < ApplicationController
 
   # Compara um valor com o estado dos dados do SIGAA.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +val+ - Valor esperado (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean.
   def sigaa_data_matches?(val)
     params[:sigaa_data] == val || ENV["SIGAA_DATA_STATUS"] == val
@@ -303,10 +303,10 @@ class AdminController < ApplicationController
 
   # Identifica se o semestre informado é futuro ou se o status dos dados está configurado como vazio.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean.
   def semestre_futuro_or_empty?
     params[:semestre] == "futuro" || ENV["SIGAA_DATA_STATUS"] == "empty"
@@ -314,13 +314,13 @@ class AdminController < ApplicationController
 
   # Intercepta a requisição caso já exista uma atualização de dados do SIGAA em progresso.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se já estava em progresso, disparando redirecionamento, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define alertas no +flash+.
   def handle_sigaa_updating
     if @@sigaa_updating || ENV["SIGAA_UPDATING_MOCK"] == "true"
@@ -333,13 +333,13 @@ class AdminController < ApplicationController
 
   # Simula a desvinculação ("unenrollment") ou inativação de um discente no SIGAA.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Altera a primeira matrícula encontrada do usuário "aluno@teste.com" para trancado ou inativo.
   def simulate_sigaa_unenrollment
     return unless ENV["SIGAA_DATA_STATUS"] == "missing_aluno"

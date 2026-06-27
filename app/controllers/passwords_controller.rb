@@ -4,13 +4,13 @@ class PasswordsController < ApplicationController
 
   # Renderiza a página de configuração inicial da senha para um usuário novo.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:token]+ - O token de setup enviado por e-mail (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+ ou renderiza página de erro caso token seja inválido/expirado.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define as variáveis de instância +@token+ e +@user+.
   def setup
     @token = params[:token]
@@ -20,13 +20,13 @@ class PasswordsController < ApplicationController
 
   # Valida se o token de setup é válido, não utilizado e não expirado.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+ se válido, ou renderização da tela de erro em caso de problemas.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Pode definir alerta no +flash.now+ e renderizar a view +:setup_error+.
   def validate_setup_token!
     return render_token_error("Link inválido") if @user.nil?
@@ -36,13 +36,13 @@ class PasswordsController < ApplicationController
 
   # Verifica se o link de setup do usuário expirou (limite de 24 horas).
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se expirado, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Nenhum.
   def setup_token_expired?
     @user.setup_token_sent_at.nil? || @user.setup_token_sent_at < 24.hours.ago
@@ -50,13 +50,13 @@ class PasswordsController < ApplicationController
 
   # Renderiza a página de erro com a mensagem de token inválido.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +msg+ - Mensagem explicativa do erro (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza o template +:setup_error+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Adiciona alerta ao +flash.now+.
   def render_token_error(msg)
     flash.now[:alert] = msg
@@ -65,15 +65,15 @@ class PasswordsController < ApplicationController
 
   # Processa o envio da definição de senha inicial.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:token]+ - Token de configuração (String).
   # * +params[:password]+ - Senha desejada (String).
   # * +params[:password_confirmation]+ - Confirmação da senha (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento ou renderização com erro de validação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Atualiza e salva a senha do usuário no banco de dados e inicia sua sessão.
   def setup_update
     return if handle_invalid_link unless load_user_by_token(:setup_token)
@@ -90,13 +90,13 @@ class PasswordsController < ApplicationController
 
   # Renderiza a página de solicitação de recuperação de senha ("Esqueci minha senha").
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view correspondente.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Nenhum.
   def forgot
     # Render forgot page
@@ -104,13 +104,13 @@ class PasswordsController < ApplicationController
 
   # Processa o envio do e-mail para geração do link de redefinição de senha.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:email]+ - O e-mail do usuário que deseja redefinir a senha (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a tela de login ou renderiza erro caso e-mail seja inválido.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Gera e salva token de reset no usuário e envia e-mail com instruções se e-mail estiver cadastrado.
   def forgot_send
     email = params[:email]&.strip
@@ -126,13 +126,13 @@ class PasswordsController < ApplicationController
 
   # Exibe erro caso o campo de e-mail na recuperação esteja em branco.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view +:forgot+ com status +:unprocessable_entity+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Adiciona alerta ao +flash.now+.
   def render_forgot_blank_email
     flash.now[:alert] = "Preencha o campo de e-mail"
@@ -141,13 +141,13 @@ class PasswordsController < ApplicationController
 
   # Exibe erro caso o formato do e-mail informado seja inválido.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +email+ - E-mail inválido digitado (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view +:forgot+ com status +:unprocessable_entity+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Adiciona alerta ao +flash.now+.
   def render_forgot_invalid_email(email)
     flash.now[:alert] = "E-mail inválido"
@@ -156,13 +156,13 @@ class PasswordsController < ApplicationController
 
   # Renderiza a tela para o usuário definir uma nova senha após clicar no link do e-mail.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:token]+ - O token de redefinição de senha (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+ ou renderiza tela de erro caso o link seja inválido/expirado.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define as variáveis de instância +@token+ e +@user+.
   def reset
     @token = params[:token]
@@ -172,13 +172,13 @@ class PasswordsController < ApplicationController
 
   # Valida se o token de reset é válido, não utilizado e dentro do prazo de expiração.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+ se válido, ou renderiza tela de erro em caso contrário.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Pode definir alerta no +flash.now+ e renderizar a view de erro.
   def validate_reset_token!
     return render_token_error("Link inválido") if @user.nil?
@@ -188,13 +188,13 @@ class PasswordsController < ApplicationController
 
   # Verifica se o link de redefinição de senha do usuário expirou (limite de 24 horas).
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se expirado, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Nenhum.
   def reset_token_expired?
     @user.reset_token_sent_at.nil? || @user.reset_token_sent_at < 24.hours.ago
@@ -202,15 +202,15 @@ class PasswordsController < ApplicationController
 
   # Processa e valida a atualização de redefinição da senha do usuário.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:token]+ - Token de reset (String).
   # * +params[:password]+ - Nova senha (String).
   # * +params[:password_confirmation]+ - Confirmação da nova senha (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento ou renderização com mensagens de erro.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Atualiza e salva a senha do usuário no banco de dados.
   def reset_update
     return if handle_invalid_link unless load_user_by_token(:reset_token)
@@ -231,13 +231,13 @@ class PasswordsController < ApplicationController
 
   # Carrega o usuário utilizando o token contido na requisição baseado no campo indicado.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +field+ - Símbolo indicando se busca por +:setup_token+ ou +:reset_token+ (Symbol).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Objeto +Usuario+ encontrado ou +nil+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Preenche as variáveis de instância +@token+ e +@user+.
   def load_user_by_token(field)
     @token = params[:token]
@@ -246,13 +246,13 @@ class PasswordsController < ApplicationController
 
   # Trata o caso em que o link fornecido é inválido.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Sempre retorna +true+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define alerta de link inválido no +flash.now+ e redireciona para a tela de login.
   def handle_invalid_link
     flash.now[:alert] = "Link inválido"
@@ -262,13 +262,13 @@ class PasswordsController < ApplicationController
 
   # Verifica e trata se algum campo de senha ou confirmação de senha foi enviado em branco.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +action+ - Símbolo representando a view a ser renderizada em caso de erro (Symbol).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se algum campo estiver em branco, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Se houver erro, adiciona alerta no +flash.now+ e renderiza a view do +action+ informado.
   def handle_missing_passwords(action)
     return false unless params[:password].blank? || params[:password_confirmation].blank?
@@ -280,13 +280,13 @@ class PasswordsController < ApplicationController
 
   # Atribui a nova senha e sua confirmação ao usuário, habilitando validação de regras de força da senha.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Altera os atributos +validating_password_rules+, +password+ e +password_confirmation+ do objeto +@user+.
   def assign_passwords
     @user.validating_password_rules = true
@@ -296,13 +296,13 @@ class PasswordsController < ApplicationController
 
   # Finaliza o processo de setup de senha marcando o token como utilizado, ativando a conta e logando o usuário.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a página de avaliações.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Salva o usuário com +setup_token_used = true+ e +ativo = true+, armazena o ID do usuário na sessão e define mensagem de boas-vindas no +flash+.
   def finalize_setup
     @user.setup_token_used = true
@@ -315,13 +315,13 @@ class PasswordsController < ApplicationController
 
   # Renderiza a tela de ação informada adicionando o erro de validação da senha.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +action+ - Símbolo da view a ser renderizada (Symbol).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view com status +:unprocessable_entity+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Adiciona o erro de validação de senha ao +flash.now+.
   def handle_invalid_password(action)
     flash.now[:alert] = @user.errors[:password].first
@@ -330,13 +330,13 @@ class PasswordsController < ApplicationController
 
   # Verifica e trata se o link de redefinição de senha está expirado no momento da atualização.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se estiver expirado, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Se expirado, define alerta no +flash.now+ e renderiza a view +:reset+.
   def handle_expired_reset_link
     if @user.reset_token_sent_at.nil? || @user.reset_token_sent_at < 24.hours.ago
@@ -349,13 +349,13 @@ class PasswordsController < ApplicationController
 
   # Verifica se a nova senha escolhida é idêntica à senha antiga cadastrada.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se for a mesma senha, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Se for igual, define alerta no +flash.now+ e renderiza a view +:reset+.
   def handle_same_password
     if @user.authenticate(params[:password])
@@ -368,13 +368,13 @@ class PasswordsController < ApplicationController
 
   # Conclui a redefinição de senha marcando o token de reset como utilizado e salvando as alterações.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a página de login.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Salva o usuário marcando +reset_token_used = true+ e define mensagem de sucesso no +flash+.
   def finalize_reset
     @user.reset_token_used = true

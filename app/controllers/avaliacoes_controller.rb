@@ -4,13 +4,13 @@ class AvaliacoesController < ApplicationController
 
   # Lista as pesquisas e avaliações pendentes ou respondidas baseadas no perfil do usuário atual.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a listagem de avaliações.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define as variáveis +@pesquisas_pendentes+ e +@pesquisas_respondidas+.
   def index
     case current_user.perfil
@@ -25,13 +25,13 @@ class AvaliacoesController < ApplicationController
 
   # Exibe o formulário de avaliação para ser preenchido (new).
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:id]+ - O ID do formulário de avaliação (Integer/String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a página para responder à avaliação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define a variável +@formulario+ via before_action.
   def new
     # Already set by before_action
@@ -39,14 +39,14 @@ class AvaliacoesController < ApplicationController
 
   # Processa e salva as respostas submetidas pelo usuário para uma determinada avaliação.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:id]+ - ID do formulário respondido (Integer/String).
   # * +params[:respostas]+ - Hash contendo as respostas fornecidas pelo usuário.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a lista de avaliações ou de volta para a resposta em caso de erros.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Cria um registro de +Resposta+ e os itens correspondentes (+RespostaItem+) associados no banco de dados. Define mensagens de erro/sucesso no +flash+.
   def create
     return if reject_duplicate_submission
@@ -72,13 +72,13 @@ class AvaliacoesController < ApplicationController
 
   # Intercepta a submissão caso o usuário já tenha respondido anteriormente ao formulário.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se já foi respondido e ocorreu redirecionamento, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define alerta de duplicidade no +flash+ e redireciona para a lista de avaliações.
   def reject_duplicate_submission
     return false unless Resposta.exists?(formulario: @formulario, usuario: current_user)
@@ -90,13 +90,13 @@ class AvaliacoesController < ApplicationController
 
   # Intercepta a submissão caso existam perguntas obrigatórias sem resposta.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se faltarem respostas e ocorreu redirecionamento, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define mensagem de alerta de campos obrigatórios no +flash+ e redireciona para a tela do formulário.
   def reject_missing_fields
     return false unless missing_required_fields?
@@ -108,13 +108,13 @@ class AvaliacoesController < ApplicationController
 
   # Carrega pesquisas para o perfil Administrador.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Preenche +@pesquisas_pendentes+ com todos os formulários abertos e +@pesquisas_respondidas+ com coleções vazias.
   def load_admin_pesquisas
     @pesquisas_pendentes = Formulario.where(status: "aberto")
@@ -123,13 +123,13 @@ class AvaliacoesController < ApplicationController
 
   # Carrega as pesquisas/avaliações associadas às turmas ministradas pelo docente logado.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define as variáveis de instância correspondentes chamando +load_pesquisas_for+.
   def load_docente_pesquisas
     turmas = Turma.where(docente_id: current_user.id).pluck(:id)
@@ -138,13 +138,13 @@ class AvaliacoesController < ApplicationController
 
   # Carrega as pesquisas/avaliações associadas às turmas em que o discente logado está matriculado.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define as variáveis de instância correspondentes chamando +load_pesquisas_for+.
   def load_discente_pesquisas
     turmas = current_user.matriculas.pluck(:turma_id)
@@ -153,14 +153,14 @@ class AvaliacoesController < ApplicationController
 
   # Carrega formulários ativos direcionados ao público-alvo específico para uma lista de turmas.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +turma_ids+ - Lista de IDs de turmas vinculadas (Array de Integers).
   # * +publico_alvo+ - Array de strings contendo as tags de público-alvo esperadas (Array de Strings).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Preenche as variáveis de instância +@pesquisas_pendentes+ e +@pesquisas_respondidas+.
   def load_pesquisas_for(turma_ids, publico_alvo)
     now = Time.current
@@ -178,13 +178,13 @@ class AvaliacoesController < ApplicationController
 
   # Verifica se alguma das perguntas obrigatórias do template não foi preenchida.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se alguma pergunta obrigatória ficou em branco, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Nenhum.
   def missing_required_fields?
     @formulario.template.perguntas.each_with_index.any? do |pergunta, idx|
@@ -194,11 +194,11 @@ class AvaliacoesController < ApplicationController
 
   # Determina se uma pergunta específica ficou sem resposta de acordo com seu tipo.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +pergunta+ - Instância do modelo +QuestaoTemplate+.
   # * +resp_param+ - Hash contendo os valores submetidos para a pergunta.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se faltar a resposta, +false+ caso contrário).
   def question_missing_answer?(pergunta, resp_param)
     return true if resp_param.nil?
@@ -212,13 +212,13 @@ class AvaliacoesController < ApplicationController
 
   # Varre o template de perguntas e chama a persistência para cada item de resposta recebido.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Cria registros na tabela +resposta_itens+.
   def create_resposta_items
     @formulario.template.perguntas.each_with_index do |pergunta, idx|
@@ -231,14 +231,14 @@ class AvaliacoesController < ApplicationController
 
   # Cria efetivamente um item de resposta (+RespostaItem+) no banco de dados.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +pergunta+ - Objeto +QuestaoTemplate+.
   # * +resp_param+ - Hash contendo as respostas dadas para a pergunta (+:nota+ e/ou +:texto+).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Objeto +RespostaItem+ criado e salvo.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Grava um novo registro de +RespostaItem+ associado a +@resposta+.
   def build_resposta_item(pergunta, resp_param)
     RespostaItem.create!(
@@ -252,13 +252,13 @@ class AvaliacoesController < ApplicationController
 
   # Localiza e define o formulário atual a partir dos parâmetros de rota.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Objeto +Formulario+ encontrado.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define a variável de instância +@formulario+.
   def set_formulario
     @formulario = Formulario.find(params[:id])

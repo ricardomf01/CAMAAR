@@ -3,13 +3,13 @@ class TemplatesController < ApplicationController
 
   # Lista todos os templates de avaliação cadastrados e inicia uma nova instância vazia.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view de listagem/criação de templates.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define as variáveis de instância +@templates+ e +@template+.
   def index
     @templates = Template.all
@@ -18,13 +18,13 @@ class TemplatesController < ApplicationController
 
   # Cria um novo template e suas respectivas perguntas associadas em uma transação atômica.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:template]+ - Hash contendo o título, descrição, perfil alvo e perguntas enviadas.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a lista de templates ou re-renderização com status de erro.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Cria um registro na tabela +templates+ e múltiplos registros na tabela +questao_templates+ caso válido. Define mensagens no +flash+.
   def create
     @template = build_template
@@ -42,13 +42,13 @@ class TemplatesController < ApplicationController
 
   # Renderiza a página para edição de dados básicos de um template existente (título e descrição).
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:id]+ - O ID do template desejado (Integer/String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view de edição.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define a variável de instância +@template+.
   def edit
     @template = Template.find(params[:id])
@@ -56,14 +56,14 @@ class TemplatesController < ApplicationController
 
   # Processa a atualização de dados básicos de um template.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:id]+ - O ID do template desejado (Integer/String).
   # * +params[:template]+ - Hash contendo os dados modificados do template (título, descrição).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a listagem ou re-renderização em caso de falha de validação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Atualiza e salva o registro do template no banco de dados. Define mensagens de sucesso/erro no +flash+.
   def update
     @template = Template.find(params[:id])
@@ -78,13 +78,13 @@ class TemplatesController < ApplicationController
 
   # Exclui um template caso este não tenha nenhum formulário de avaliação ativo/vinculado.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:id]+ - O ID do template desejado (Integer/String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a listagem de templates.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Exclui o registro do template (e suas perguntas em cascata) do banco de dados se permitido. Define alertas/avisos no +flash+.
   def destroy
     @template = Template.find(params[:id])
@@ -101,13 +101,13 @@ class TemplatesController < ApplicationController
 
   # Salva o template e cria suas respectivas perguntas em uma transação atômica do banco de dados.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +valid_questions+ - Array contendo os hashes das perguntas validadas.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Redirecionamento para a listagem de templates ou chamada para tratamento de erro de salvamento.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Commita a transação no banco de dados e define mensagem de sucesso no +flash+.
   def save_template_and_questions(valid_questions)
     ActiveRecord::Base.transaction do
@@ -123,10 +123,10 @@ class TemplatesController < ApplicationController
 
   # Permite apenas os parâmetros seguros de modificação do template.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Instância de +ActionController::Parameters+ contendo os campos permitidos.
   def template_params
     params.require(:template).permit(:titulo, :descricao)
@@ -134,10 +134,10 @@ class TemplatesController < ApplicationController
 
   # Constrói uma nova instância de template a partir dos parâmetros de requisição.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Instância não persistida de +Template+.
   def build_template
     p = params[:template]
@@ -151,13 +151,13 @@ class TemplatesController < ApplicationController
 
   # Intercepta e trata se o template submetido está sem título.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se faltar título com re-renderização ativa, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Carrega a lista completa de +@templates+, insere alerta no +flash.now+ e renderiza a view +:index+.
   def handle_missing_title
     if params[:template][:titulo].blank?
@@ -172,10 +172,10 @@ class TemplatesController < ApplicationController
 
   # Filtra a lista de perguntas enviadas removendo as que possuem o enunciado/texto em branco.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Array filtrado contendo apenas perguntas com texto preenchido.
   def extract_valid_questions
     return [] unless params[:template][:perguntas].present?
@@ -184,13 +184,13 @@ class TemplatesController < ApplicationController
 
   # Intercepta e trata se nenhuma pergunta válida foi inserida no template.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +valid_questions+ - Coleção de perguntas analisadas (Array).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se não houver perguntas válidas e re-renderização for efetuada, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Recarrega +@templates+, define alerta no +flash.now+ e renderiza a view +:index+.
   def handle_missing_questions(valid_questions)
     if valid_questions.empty?
@@ -205,13 +205,13 @@ class TemplatesController < ApplicationController
 
   # Cria e vincula as perguntas válidas ao template recém-criado.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +valid_questions+ - Coleção de parâmetros das perguntas (Array de Hashes).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Grava múltiplos registros no banco de dados na tabela +questao_templates+.
   def create_questions(valid_questions)
     valid_questions.each_with_index do |p_param, index|
@@ -227,13 +227,13 @@ class TemplatesController < ApplicationController
 
   # Trata e notifica falhas ocorridas na transação ou no salvamento do template.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +message+ - Mensagem descritiva do erro (String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view +:index+ com status +:unprocessable_entity+.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Recarrega +@templates+ e define alerta no +flash.now+.
   def handle_save_error(message)
     @templates = Template.all

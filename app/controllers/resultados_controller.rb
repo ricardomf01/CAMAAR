@@ -5,13 +5,13 @@ class ResultadosController < ApplicationController
 
   # Lista todos os formulários existentes para os quais resultados podem ser avaliados.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view de listagem contendo a coleção de todos os formulários.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define a variável de instância +@formularios+.
   def index
     @formularios = Formulario.all
@@ -19,13 +19,13 @@ class ResultadosController < ApplicationController
 
   # Exibe os resultados agregados e comentários de um formulário de avaliação específico.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:id]+ - O ID do formulário de avaliação (Integer/String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view com gráficos de métricas e comentários textuais do formulário.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define +@formulario+, +@respostas+, +@mensagem_aviso+, +@perguntas_metricas+ e +@comentarios+.
   def show
     @formulario = Formulario.find(params[:id])
@@ -42,13 +42,13 @@ class ResultadosController < ApplicationController
 
   # Exibe a lista de relatórios disponíveis para exportação.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Renderiza a view com todos os formulários para exportação.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define a variável de instância +@formularios+.
   def relatorios
     @formularios = Formulario.all
@@ -56,14 +56,14 @@ class ResultadosController < ApplicationController
 
   # Gera e exporta um arquivo CSV contendo os dados brutos de respostas de uma avaliação.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +params[:id]+ ou +params[:formulario_id]+ - ID do formulário associado (Integer/String).
   # * +params[:turma_id]+ - Filtro opcional para limitar resultados a uma turma específica (Integer/String).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Envio de dados de download do arquivo CSV ou redirecionamento em caso de erro/sem dados.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Envia uma resposta HTTP do tipo file stream contendo o arquivo CSV compilado. Define mensagens no +flash+ caso bloqueado ou sem dados.
   def export_csv_resultado
     return if require_admin_export_access
@@ -82,13 +82,13 @@ class ResultadosController < ApplicationController
 
   # Separa e processa uma pergunta individual do template de acordo com o seu tipo.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +pergunta+ - Objeto +QuestaoTemplate+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Popula os arrays de instância +@perguntas_metricas+ ou +@comentarios+.
   def process_pergunta(pergunta)
     itens = RespostaItem.where(questao_template: pergunta, resposta: @respostas)
@@ -101,11 +101,11 @@ class ResultadosController < ApplicationController
 
   # Calcula e estrutura as estatísticas agregadas para uma pergunta do tipo escala Likert.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +pergunta+ - Objeto +QuestaoTemplate+.
   # * +itens+ - Coleção de objetos +RespostaItem+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Hash formatado contendo +:pergunta+, +:media+, +:distribuicao+ (percentual de votos de 1 a 5) e +:count+ (total de votos).
   def process_likert_question(pergunta, itens)
     valores = itens.pluck(:valor_numerico).compact
@@ -120,10 +120,10 @@ class ResultadosController < ApplicationController
 
   # Calcula a média aritmética de uma lista de valores numéricos de respostas.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +valores+ - Array de inteiros.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Float arredondado para uma casa decimal.
   def calcular_media(valores)
     valores.any? ? (valores.sum.to_f / valores.size).round(1) : 0.0
@@ -131,10 +131,10 @@ class ResultadosController < ApplicationController
 
   # Calcula a frequência percentual de cada nota (de 1 a 5) em um conjunto de respostas.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +valores+ - Array de inteiros representando as notas coletadas.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Hash mapeando as notas de 1 a 5 para seus respectivos percentuais (inteiros).
   def calcular_distribuicao(valores)
     (1..5).to_h do |num|
@@ -146,11 +146,11 @@ class ResultadosController < ApplicationController
 
   # Extrai as respostas textuais não em branco para uma pergunta dissertativa.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +pergunta+ - Objeto +QuestaoTemplate+.
   # * +itens+ - Coleção de +RespostaItem+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Hash contendo a pergunta e um array contendo os textos das respostas.
   def process_text_question(pergunta, itens)
     {
@@ -161,13 +161,13 @@ class ResultadosController < ApplicationController
 
   # Verifica e impede acesso à exportação caso o usuário logado não seja administrador.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se acesso negado com redirecionamento ativo, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Define flash de alerta e redireciona para a raiz.
   def require_admin_export_access
     unless logged_in? && current_user.perfil == "administrador"
@@ -180,13 +180,13 @@ class ResultadosController < ApplicationController
 
   # Impede a geração caso não existam respostas registradas para a coleção de formulários.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +formularios+ - Coleção de objetos +Formulario+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean (+true+ se não houver respostas suficientes, +false+ caso contrário).
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Redireciona com alerta no +flash+ caso não existam dados.
   def check_empty_responses(formularios)
     if formularios.joins(:respostas).count == 0
@@ -199,10 +199,10 @@ class ResultadosController < ApplicationController
 
   # Filtra a coleção de formulários aplicando restrição de turma se o parâmetro correspondente estiver presente.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +formularios+ - Coleção de objetos +Formulario+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Coleção de +Formulario+ filtrada.
   def filter_formularios(formularios)
     params[:turma_id].present? ? formularios.where(turma_id: params[:turma_id]) : formularios
@@ -210,14 +210,14 @@ class ResultadosController < ApplicationController
 
   # Prepara e envia os dados do arquivo CSV como anexo para download.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +csv_data+ - String contendo o CSV codificado.
   # * +template+ - O template associado à avaliação para compor o nome do arquivo.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Envia a resposta HTTP de download de arquivo.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Dispara o download de arquivo no navegador do usuário e insere confirmação no +flash+.
   def send_csv_response(csv_data, template)
     safe_name = template.titulo.downcase.gsub(/[^a-z0-9]/, "_").squeeze("_")
@@ -228,10 +228,10 @@ class ResultadosController < ApplicationController
 
   # Constrói a estrutura e o conteúdo do CSV de resultados compilando dados de turmas, disciplinas e respostas de alunos.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +formularios+ - Coleção de objetos +Formulario+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * String contendo os registros CSV compilados.
   def generate_csv_data(formularios)
     CSV.generate(headers: true, col_sep: ",", encoding: "UTF-8") do |csv|
@@ -248,11 +248,11 @@ class ResultadosController < ApplicationController
 
   # Valida se a resposta do discente pertence à turma informada na filtragem.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +resp+ - Objeto +Resposta+.
   # * +turma_id_param+ - Parâmetro opcional de ID da turma (String/Integer).
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Boolean.
   def valid_turma_response?(resp, turma_id_param)
     return true if turma_id_param.blank?
@@ -261,15 +261,15 @@ class ResultadosController < ApplicationController
 
   # Varre os itens de respostas individuais anexando-os como linhas no objeto CSV.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +csv+ - Instância do gerador de CSV.
   # * +form+ - Objeto +Formulario+ avaliado.
   # * +resp+ - Objeto +Resposta+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Adiciona novas linhas ao objeto acumulador do CSV.
   def append_resposta_itens_to_csv(csv, form, resp)
     aluno_turma = extract_aluno_turma(form, resp)
@@ -282,11 +282,11 @@ class ResultadosController < ApplicationController
 
   # Localiza a turma em que o discente realizou a avaliação ou retorna a turma padrão do formulário.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +form+ - Objeto +Formulario+.
   # * +resp+ - Objeto +Resposta+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * Instância de +Turma+.
   def extract_aluno_turma(form, resp)
     resp.usuario.matriculas.find_by(turma_id: form.turma_id)&.turma || form.turma
@@ -294,10 +294,10 @@ class ResultadosController < ApplicationController
 
   # Recupera a nota numérica ou o texto correspondente a um item de resposta individual.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * +item+ - Objeto +RespostaItem+.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * String correspondente ao valor.
   def extract_item_value(item)
     item.questao_template.tipo == "likert" ? item.valor_numerico.to_s : item.valor_texto
@@ -305,13 +305,13 @@ class ResultadosController < ApplicationController
 
   # Filtro/before_action interno para restringir o acesso a resultados de avaliações a administradores.
   #
-  # *Parâmetros:*
+  # <b>Parâmetros:</b>
   # * Nenhum.
   #
-  # *Retorno:*
+  # <b>Retorno:</b>
   # * +nil+ se autorizado, ou redirecionamento em caso contrário.
   #
-  # *Efeitos Colaterais:*
+  # <b>Efeitos Colaterais:</b>
   # * Redireciona com alerta no +flash+ caso não seja administrador logado.
   def require_admin_for_resultados
     unless logged_in? && current_user.perfil == "administrador"
