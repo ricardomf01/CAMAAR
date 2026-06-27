@@ -12,6 +12,16 @@ class Template < ApplicationRecord
 
   private
 
+  # Valida se o template tem pelo menos uma pergunta, a menos que seja ignorado.
+  #
+  # = Parâmetros:
+  # * Nenhum.
+  #
+  # = Retorno:
+  # * Nil.
+  #
+  # = Efeitos Colaterais:
+  # * Adiciona erro de validação ao model.
   def must_have_at_least_one_question
     return if skip_questions_validation
     if perguntas.empty?
