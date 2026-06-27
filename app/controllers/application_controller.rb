@@ -13,13 +13,13 @@ class ApplicationController < ActionController::Base
 
   # Configura a sessão de teste a partir da thread atual.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Integer representando o ID do usuário na sessão ou nil.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Define a chave +:usuario_id+ no hash da sessão.
   def setup_test_session
     session[:usuario_id] = Thread.current[:test_usuario_id]
@@ -27,13 +27,13 @@ class ApplicationController < ActionController::Base
 
   # Recupera o usuário atualmente autenticado a partir do ID salvo na sessão.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Objeto +Usuario+ se autenticado, ou +nil+ caso contrário.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Define a variável de instância +@current_user+.
   def current_user
     @current_user ||= Usuario.find_by(id: session[:usuario_id]) if session[:usuario_id]
@@ -41,13 +41,13 @@ class ApplicationController < ActionController::Base
 
   # Verifica se existe um usuário autenticado na sessão.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Boolean (+true+ se logado, +false+ caso contrário).
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Nenhum.
   def logged_in?
     current_user.present?
@@ -55,13 +55,13 @@ class ApplicationController < ActionController::Base
 
   # Filtro/before_action para exigir que o usuário esteja autenticado.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * +nil+ se já estiver logado, ou redirecionamento em caso contrário.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Define uma mensagem de alerta no +flash+ e redireciona para a tela de login se não estiver logado.
   def require_user
     unless logged_in?
@@ -72,13 +72,13 @@ class ApplicationController < ActionController::Base
 
   # Filtro/before_action para exigir que o usuário logado seja um administrador.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * +nil+ se o usuário for administrador, ou redirecionamento em caso contrário.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Define uma mensagem de alerta no +flash+ e redireciona para a raiz (+root_path+) se não for administrador.
   def require_admin
     unless logged_in? && current_user.perfil == "administrador"

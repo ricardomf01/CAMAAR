@@ -1,13 +1,13 @@
 class SessionsController < ApplicationController
   # Renderiza a página de login se o usuário não estiver autenticado, ou redireciona-o caso contrário.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * +nil+ ou redirecionamento se o usuário já estiver logado.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Redireciona o usuário logado para o painel apropriado (admin ou avaliações).
   def new
     return unless logged_in?
@@ -21,14 +21,14 @@ class SessionsController < ApplicationController
 
   # Processa a tentativa de login autenticando as credenciais fornecidas.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * +params[:email]+ - E-mail ou matrícula digitados pelo usuário (String).
   # * +params[:password]+ - Senha digitada pelo usuário (String).
   #
-  # = Retorno:
+  # *Retorno:*
   # * Renderização de template de login em caso de falha, ou redirecionamento em caso de sucesso.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Pode definir mensagens de erro no +flash+ ou estabelecer uma sessão de usuário em caso de sucesso.
   def create
     credencial = params[:email]&.strip
@@ -41,13 +41,13 @@ class SessionsController < ApplicationController
 
   # Destrói a sessão atual do usuário (logout).
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Redirecionamento para a página de login.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Define +session[:usuario_id]+ como +nil+ e gera mensagem de notificação de saída no +flash+.
   def destroy
     session[:usuario_id] = nil
@@ -59,14 +59,14 @@ class SessionsController < ApplicationController
 
   # Método auxiliar para encapsular o fluxo de autenticação e validação do estado do usuário.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * +credencial+ - E-mail ou matrícula (String).
   # * +senha+ - Senha do usuário (String).
   #
-  # = Retorno:
+  # *Retorno:*
   # * Redirecionamento ou renderização dependendo do resultado da autenticação.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Cria sessão ou define erros no +flash+.
   def authenticate_and_login(credencial, senha)
     usuario = find_usuario(credencial)
@@ -80,13 +80,13 @@ class SessionsController < ApplicationController
 
   # Exibe erro caso campos obrigatórios de login não sejam preenchidos.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Renderiza a view de login com status +:unprocessable_entity+.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Adiciona alerta ao +flash.now+.
   def render_missing_fields
     flash.now[:alert] = "Preencha todos os campos obrigatórios"
@@ -95,13 +95,13 @@ class SessionsController < ApplicationController
 
   # Busca usuário por e-mail ou matrícula.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * +credencial+ - E-mail ou matrícula (String).
   #
-  # = Retorno:
+  # *Retorno:*
   # * Objeto +Usuario+ se encontrado, ou +nil+.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Nenhum.
   def find_usuario(credencial)
     Usuario.find_by(email: credencial) || Usuario.find_by(matricula: credencial)
@@ -109,13 +109,13 @@ class SessionsController < ApplicationController
 
   # Verifica se o cadastro do usuário ainda precisa de configuração de senha inicial.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * +usuario+ - Instância de +Usuario+.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Boolean indicando se o cadastro está pendente (+true+) ou concluído (+false+).
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Nenhum.
   def pending_setup?(usuario)
     usuario.senha_hash.blank? || (usuario.setup_token.present? && !usuario.setup_token_used?)
@@ -123,13 +123,13 @@ class SessionsController < ApplicationController
 
   # Trata o caso em que o setup inicial do usuário está pendente.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Renderiza a view de login com status +:unprocessable_entity+.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Adiciona alerta ao +flash.now+.
   def handle_pending_setup
     flash.now[:alert] = "Cadastro pendente: Verifique seu e-mail para definir sua senha de acesso."
@@ -138,13 +138,13 @@ class SessionsController < ApplicationController
 
   # Trata o fluxo caso o usuário/credencial não exista no banco de dados.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * +credencial+ - E-mail ou matrícula testada (String).
   #
-  # = Retorno:
+  # *Retorno:*
   # * Renderiza a view de login com status +:unprocessable_entity+.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Adiciona alerta de erro específico ao +flash.now+ baseado no tipo de credencial.
   def handle_invalid_credentials(credencial)
     if credencial.match?(/^\d+$/)
@@ -159,13 +159,13 @@ class SessionsController < ApplicationController
 
   # Trata falha na validação de senha de um usuário existente.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * +credencial+ - E-mail ou matrícula (String).
   #
-  # = Retorno:
+  # *Retorno:*
   # * Renderiza a view de login com status +:unprocessable_entity+.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Define mensagem genérica de erro no +flash.now+.
   def handle_authentication_failure(credencial)
     if credencial.match?(/^\d+$/)
@@ -178,13 +178,13 @@ class SessionsController < ApplicationController
 
   # Trata a tentativa de autenticação por um usuário que está marcado como inativo.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * Nenhum.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Renderiza a view de login com status +:unprocessable_entity+.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Adiciona mensagem de usuário inativo ao +flash.now+.
   def handle_inactive_user
     flash.now[:alert] = "Usuário inativo. Entre em contato com o administrador"
@@ -193,13 +193,13 @@ class SessionsController < ApplicationController
 
   # Efetiva o login salvando o ID do usuário na sessão e redirecionando.
   #
-  # = Parâmetros:
+  # *Parâmetros:*
   # * +usuario+ - Objeto +Usuario+ autenticado.
   #
-  # = Retorno:
+  # *Retorno:*
   # * Redirecionamento de rota.
   #
-  # = Efeitos Colaterais:
+  # *Efeitos Colaterais:*
   # * Grava +session[:usuario_id]+ e define mensagem de boas-vindas no +flash+.
   def log_in_user(usuario)
     session[:usuario_id] = usuario.id
